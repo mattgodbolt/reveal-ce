@@ -1,16 +1,16 @@
 function trim(sourceList) {
-    while (sourceList.length > 0 && sourceList[0].trim() === "") {
+    while (sourceList.length > 0 && sourceList[0].trim() === '') {
         sourceList.shift();
     }
-    while (sourceList.length > 0 && sourceList[sourceList.length - 1].trim() === "") {
+    while (sourceList.length > 0 && sourceList[sourceList.length - 1].trim() === '') {
         sourceList.pop();
     }
-    return sourceList.join("\n");
+    return sourceList.join('\n');
 }
 
 function parseCodeBlock(config, element) {
     const hideMatcher = /^\s*\/\/\/\s*((un)?hide)\s*$/;
-    const lines = element.textContent.split("\n");
+    const lines = element.textContent.split('\n');
     const source = [];
     const displaySource = [];
     let skipDisplay = false;
@@ -19,12 +19,12 @@ function parseCodeBlock(config, element) {
     for (const line of lines) {
         const match = line.match(hideMatcher);
         if (match) {
-            hide = match[1] === "hide";
+            hide = match[1] === 'hide';
             continue;
         }
-        if (line === "// setup") {
+        if (line === '// setup') {
             skipDisplay = true;
-        } else if (line[0] !== " ") {
+        } else if (line[0] !== ' ') {
             skipDisplay = false;
         }
 
@@ -40,15 +40,15 @@ function parseCodeBlock(config, element) {
         compiler: element.dataset['ceCompiler'] || config.defaultCompiler,
         options: element.dataset['ceOptions'] || config.defaultCompilerOptions,
         source: trim(source),
-        displaySource: trim(displaySource)
+        displaySource: trim(displaySource),
     };
 }
 
 function createCompilerExplorerLink(config, source, options, language, compiler) {
     const content = [
         {
-            type: "component",
-            componentName: "codeEditor",
+            type: 'component',
+            componentName: 'codeEditor',
             componentState: {
                 id: 1,
                 source: source,
@@ -58,8 +58,8 @@ function createCompilerExplorerLink(config, source, options, language, compiler)
             },
         },
         {
-            type: "component",
-            componentName: "compiler",
+            type: 'component',
+            componentName: 'compiler',
             componentState: {
                 source: 1,
                 filters: {
@@ -69,7 +69,7 @@ function createCompilerExplorerLink(config, source, options, language, compiler)
                     labels: true,
                     trim: config.trimAsmWhitespace,
                 },
-                options: [options, config.additionalCompilerOptions].filter(Boolean).join(" "),
+                options: [options, config.additionalCompilerOptions].filter(Boolean).join(' '),
                 compiler: compiler,
                 fontScale: config.compilerFontScale,
             },
@@ -78,12 +78,45 @@ function createCompilerExplorerLink(config, source, options, language, compiler)
 
     const obj = {
         version: 4,
-        content: [{type: "row", content: content}],
+        content: [{type: 'row', content: content}],
     };
 
     return encodeURIComponent(JSON.stringify(obj));
 }
 
+/**
+ * Initializes the configuration for the Compiler Explorer plugin.
+ * @param {Object} deck - The reveal.js deck instance.
+ * @returns {Object} - The configuration object.
+ */
+function initializeConfig(deck) {
+    const config = deck.getConfig().ce || {};
+    config.baseUrl = config.baseUrl || 'https://slides.compiler-explorer.com';
+    config.maxLineLength = config.maxLineLength || 50;
+    config.editorFontScale = config.editorFontScale || 2.5;
+    config.compilerFontScale = config.compilerFontScale || 3.0;
+    config.defaultLanguage = 'c++';
+    config.defaultCompiler = 'g142';
+    config.defaultCompilerOptions = config.defaultCompilerOptions || '-O1';
+    config.additionalCompilerOptions = config.additionalCompilerOptions || '-Wall -Wextra';
+    config.intelSyntax = config.intelSyntax || true;
+    config.trimAsmWhitespace = config.trimAsmWhitespace || true;
+    return config;
+}
+
+/**
+ * Attaches event listeners to the code element.
+ * @param {Object} config - The configuration object.
+ * @param {HTMLElement} element - The code element.
+ * @param {string} ceFragment - The Compiler Explorer link fragment.
+ */
+function attachEventListeners(config, element, ceFragment) {
+    element.onclick = evt => {
+        if (evt.ctrlKey) {
+            window.location.assign(`${config.baseUrl}#${ceFragment}`);
+        }
+    };
+}
 
 /**
  * Compiler Explorer reveal.js plugin configuration options:
@@ -107,37 +140,16 @@ function createCompilerExplorerLink(config, source, options, language, compiler)
  * @returns {{init: *, id: string}}
  */
 export default () => ({
-    id: "compiler-explorer",
-    init: (deck) => {
-        const ce_nodes = deck.getSlidesElement().querySelectorAll("[data-ce]");
-        const config = deck.getConfig().ce || {};
-        config.baseUrl = config.baseUrl || "https://slides.compiler-explorer.com";
-        config.maxLineLength = config.maxLineLength || 50;
-        config.editorFontScale = config.editorFontScale || 2.5;
-        config.compilerFontScale = config.compilerFontScale || 3.0;
-        config.defaultLanguage = "c++";
-        config.defaultCompiler = "g142";
-        config.defaultCompilerOptions = config.defaultCompilerOptions || "-O1";
-        config.additionalCompilerOptions = config.additionalCompilerOptions || "-Wall -Wextra";
-        config.intelSyntax = config.intelSyntax || true;
-        config.trimAsmWhitespace = config.trimAsmWhitespace || true;
+    id: 'compiler-explorer',
+    init: deck => {
+        const ce_nodes = deck.getSlidesElement().querySelectorAll('[data-ce]');
+        const config = initializeConfig(deck);
 
         for (let i = 0, len = ce_nodes.length; i < len; i++) {
             const element = ce_nodes[i];
-            const {
-                language,
-                compiler,
-                options,
-                source,
-                displaySource
-            } = parseCodeBlock(config, element);
-
+            const {language, compiler, options, source, displaySource} = parseCodeBlock(config, element);
             const ceFragment = createCompilerExplorerLink(config, source, options, language, compiler);
-            element.onclick = (evt) => {
-                if (evt.ctrlKey) {
-                    window.location.assign(`${config.baseUrl}#${ceFragment}`);
-                }
-            };
+            attachEventListeners(config, element, ceFragment);
             element.textContent = displaySource;
         }
     },
