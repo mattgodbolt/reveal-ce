@@ -15,16 +15,16 @@ into presentation-ready Compiler-Explorer-linked snippets. It supports:
 Include the plugin in your reveal.js presentation, submoduled or copied into
 your project:
 
-```bash
-
 ```html
+
 <script src="module">
-import Reveal from './reveal.js/dist/reveal.esm.js';
-import Highlight from "./reveal.js/plugin/highlight/highlight.esm.js";
-import CompilerExplorer from "./reveal-ce/index.js";
+    import Reveal from './reveal.js/dist/reveal.esm.js';
+    import Highlight from "./reveal.js/plugin/highlight/highlight.esm.js";
+    import CompilerExplorer from "./reveal-ce/index.js";
+
     Reveal.initialize({
         ce: {
-          // put any CE options here, see below for details.
+            // put any CE options here, see below for details.
         },
 
         // CompilerExplorer must be before Highlight in the plugins list
