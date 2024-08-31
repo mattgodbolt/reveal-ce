@@ -111,7 +111,9 @@ function initializeConfig(deck) {
  * @param {string} ceFragment - The Compiler Explorer link fragment.
  */
 function attachEventListeners(config, element, ceFragment) {
-    element.onclick = evt => {
+    // Attach `onclick` to the (presumed `<pre>`) parent element. That way if data-line-numbers is used (which creates
+    // multiple code elements), the click event will still work.
+    element.parentElement.onclick = evt => {
         if (evt.ctrlKey) {
             window.location.assign(`${config.baseUrl}#${ceFragment}`);
         }
