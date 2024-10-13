@@ -49,7 +49,7 @@ attribute to specify the options to use. For example:
 ```html
 <pre><code data-ce data-ce-compiler="g142" data-ce-options="-O3 -march=haswell">
     int multiply(int a, int b) {
-    return a * b; 
+    return a * b;
 }
 </code></pre>
 ```
@@ -84,6 +84,7 @@ Other supported options are:
 - `intelSyntax` - whether to use Intel syntax for the compiler output. Defaults to true.
 - `trimAsmWhitespace` - whether to use the "trim" option for the compiler output on Compiler Explorer itself
   (suppressing horizontal whitespace). Defaults to true.
+- `undent` - whether to undent the displayed code. Defaults to true.
 
 ### Hiding and setup
 

@@ -1,9 +1,16 @@
-function trim(sourceList) {
+function trim(sourceList, undent) {
     while (sourceList.length > 0 && sourceList[0].trim() === '') {
         sourceList.shift();
     }
     while (sourceList.length > 0 && sourceList[sourceList.length - 1].trim() === '') {
         sourceList.pop();
+    }
+    if (undent) {
+        const indent = sourceList.reduce((acc, line) => {
+            const leadingSpace = line.match(/^\s*/)[0].length;
+            return Math.min(acc, leadingSpace);
+        }, Infinity);
+        if (indent !== Infinity) sourceList = sourceList.map(line => line.slice(indent));
     }
     return sourceList.join('\n');
 }
@@ -39,8 +46,8 @@ function parseCodeBlock(config, element) {
         language: element.dataset['ceLanguage'] || config.defaultLanguage,
         compiler: element.dataset['ceCompiler'] || config.defaultCompiler,
         options: element.dataset['ceOptions'] || config.defaultCompilerOptions,
-        source: trim(source),
-        displaySource: trim(displaySource),
+        source: trim(source, false),
+        displaySource: trim(displaySource, config.undent),
     };
 }
 
@@ -101,6 +108,7 @@ function initializeConfig(deck) {
     config.additionalCompilerOptions = config.additionalCompilerOptions || '-Wall -Wextra';
     config.intelSyntax = config.intelSyntax || true;
     config.trimAsmWhitespace = config.trimAsmWhitespace || true;
+    config.undent = config.undent || true;
     return config;
 }
 
@@ -135,6 +143,7 @@ function attachEventListeners(config, element, ceFragment) {
  * @property {string} [additionalCompilerOptions] - Additional compiler options to be appended to the default options.
  * @property {boolean} [intelSyntax] - Whether to use Intel syntax for the compiler output. Defaults to true.
  * @property {boolean} [trimAsmWhitespace] - Whether to trim whitespace from the compiler output. Defaults to true.
+ * @property {boolean} [undent] - Whether to undent the displayed code block. Defaults to true.
  */
 
 /**
