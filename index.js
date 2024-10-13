@@ -7,6 +7,7 @@ function trim(sourceList, undent) {
     }
     if (undent) {
         const indent = sourceList.reduce((acc, line) => {
+            if (line.trim() === '') return acc;
             const leadingSpace = line.match(/^\s*/)[0].length;
             return Math.min(acc, leadingSpace);
         }, Infinity);
