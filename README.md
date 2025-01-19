@@ -13,7 +13,7 @@ Compiler-Explorer-linked snippets. It supports:
 Include the plugin in your reveal.js presentation, submoduled or copied into your project:
 
 ```html
-<script src="module">
+<script type="module">
   import Reveal from './reveal.js/dist/reveal.esm.js';
   import Highlight from "./reveal.js/plugin/highlight/highlight.esm.js";
   import CompilerExplorer from "./reveal-ce/index.js";
