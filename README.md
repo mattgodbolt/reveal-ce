@@ -124,3 +124,16 @@ int test() {
 }
 </code></pre>
 ```
+
+### Compatibility with Markdown
+
+It's convenient to use Markdown code blocks, but 
+[reveal.js doesn't currently let us put attributes](https://github.com/hakimel/reveal.js/issues/3642) on Markdown code
+blocks. Instead we can put the following line _after_ the triple-backtick block:
+
+```
+<!-- .element: data-ce -->
+```
+
+You can add any other data options there: although this actually puts the tags on the `<pre>` block outside of the 
+`<code>` block that's generated, reveal-ce will do the right thing.

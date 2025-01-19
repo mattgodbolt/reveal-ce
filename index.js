@@ -154,6 +154,8 @@ function attachEventListeners(config, element, ceFragment) {
 export default () => ({
     id: 'compiler-explorer',
     init: deck => {
+        // Find all [data-ce] nodes, which is _usually_ on the `code` block but to support Markdown can also be on the `<pre>`
+        // outside. See https://github.com/hakimel/reveal.js/issues/3642
         const ce_nodes = deck.getSlidesElement().querySelectorAll('[data-ce]');
         const config = initializeConfig(deck);
 
@@ -162,7 +164,13 @@ export default () => ({
             const {language, compiler, options, source, displaySource} = parseCodeBlock(config, element);
             const ceFragment = createCompilerExplorerLink(config, source, options, language, compiler);
             attachEventListeners(config, element, ceFragment);
-            element.textContent = displaySource;
+            // To allow the tags to be placed on the `<pre>` outside (for Markdown support), we check for a code block here.
+            const maybeInnerCodeBlock = element.querySelectorAll('code');
+            if (maybeInnerCodeBlock.length === 1) {
+                maybeInnerCodeBlock[0].textContent = displaySource;
+            } else {
+               element.textContent = displaySource;
+            }
         }
     },
 });
