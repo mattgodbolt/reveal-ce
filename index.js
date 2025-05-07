@@ -98,19 +98,22 @@ function createCompilerExplorerLink(config, source, options, language, compiler)
  * @returns {Object} - The configuration object.
  */
 function initializeConfig(deck) {
-    const config = deck.getConfig().ce || {};
-    config.baseUrl = config.baseUrl || 'https://slides.compiler-explorer.com';
-    config.maxLineLength = config.maxLineLength || 50;
-    config.editorFontScale = config.editorFontScale || 2.5;
-    config.compilerFontScale = config.compilerFontScale || 3.0;
-    config.defaultLanguage = 'c++';
-    config.defaultCompiler = 'g142';
-    config.defaultCompilerOptions = config.defaultCompilerOptions || '-O1';
-    config.additionalCompilerOptions = config.additionalCompilerOptions || '-Wall -Wextra';
-    config.intelSyntax = config.intelSyntax || true;
-    config.trimAsmWhitespace = config.trimAsmWhitespace || true;
-    config.undent = config.undent || true;
-    return config;
+    const defaultConfig = {
+        baseUrl: 'https://slides.compiler-explorer.com',
+        maxLineLength: 50,
+        editorFontScale: 2.5,
+        compilerFontScale: 3.0,
+        defaultLanguage: 'c++',
+        defaultCompiler: 'g142',
+        defaultCompilerOptions: '-O1',
+        additionalCompilerOptions: '-Wall -Wextra',
+        intelSyntax: true,
+        trimAsmWhitespace: true,
+        undent: true,
+    };
+
+    // Merge user config with defaults
+    return {...defaultConfig, ...(deck.getConfig().ce || {})};
 }
 
 /**
@@ -169,7 +172,7 @@ export default () => ({
             if (maybeInnerCodeBlock.length === 1) {
                 maybeInnerCodeBlock[0].textContent = displaySource;
             } else {
-               element.textContent = displaySource;
+                element.textContent = displaySource;
             }
         }
     },
