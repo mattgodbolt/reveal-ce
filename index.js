@@ -25,9 +25,9 @@ function trim(sourceList, undent) {
 /**
  * Parses a code block, processing special comments and preparing both the complete source
  * (for Compiler Explorer) and the display source (for presentation).
- * @param {Object} config - The configuration object
+ * @param {CompilerExplorerConfig} config - The configuration object
  * @param {HTMLElement} element - The code element to parse
- * @returns {Object} - Object containing parsed information
+ * @returns {ParsedCodeBlock} - Object containing parsed information
  */
 function parseCodeBlock(config, element) {
     const hideMatcher = /^\s*\/\/\/\s*((un)?hide)\s*$/;
@@ -67,7 +67,7 @@ function parseCodeBlock(config, element) {
 
 /**
  * Creates a Compiler Explorer URL fragment for the given source code and options.
- * @param {Object} config - The configuration object
+ * @param {CompilerExplorerConfig} config - The configuration object
  * @param {string} source - The complete source code to send to Compiler Explorer
  * @param {string} options - The compiler options
  * @param {string} language - The programming language
@@ -117,7 +117,7 @@ function createCompilerExplorerLink(config, source, options, language, compiler)
 /**
  * Initializes the configuration for the Compiler Explorer plugin.
  * @param {Object} deck - The reveal.js deck instance.
- * @returns {Object} - The configuration object.
+ * @returns {CompilerExplorerConfig} - The configuration object.
  */
 function initializeConfig(deck) {
     const defaultConfig = {
@@ -140,7 +140,7 @@ function initializeConfig(deck) {
 
 /**
  * Attaches event listeners to the code element.
- * @param {Object} config - The configuration object.
+ * @param {CompilerExplorerConfig} config - The configuration object.
  * @param {HTMLElement} element - The code element.
  * @param {string} ceFragment - The Compiler Explorer link fragment.
  */
@@ -155,7 +155,89 @@ function attachEventListeners(config, element, ceFragment) {
 }
 
 /**
- * Compiler Explorer reveal.js plugin configuration options:
+ * Compiler Explorer ASM filters configuration
+ *
+ * @typedef {Object} CEAsmFilters
+ * @property {boolean} commentOnly - Include only comments from the output
+ * @property {boolean} directives - Include compiler directives
+ * @property {boolean} intel - Use Intel syntax
+ * @property {boolean} labels - Include labels
+ * @property {boolean} trim - Trim whitespace
+ */
+
+/**
+ * Compiler Explorer editor options
+ *
+ * @typedef {Object} CEEditorOptions
+ * @property {boolean} compileOnChange - Whether to compile when code changes
+ * @property {boolean} colouriseAsm - Whether to colorize assembly output
+ */
+
+/**
+ * Compiler Explorer component state base
+ *
+ * @typedef {Object} CEComponentStateBase
+ * @property {number} fontScale - The font scale
+ */
+
+/**
+ * Compiler Explorer code editor component state
+ *
+ * @typedef {CEComponentStateBase} CECodeEditorState
+ * @property {number} id - The component ID
+ * @property {string} source - The source code
+ * @property {CEEditorOptions} options - Editor options
+ * @property {string} lang - The programming language
+ */
+
+/**
+ * Compiler Explorer compiler component state
+ *
+ * @typedef {CEComponentStateBase} CECompilerState
+ * @property {number} source - The source component ID
+ * @property {CEAsmFilters} filters - Assembly filters
+ * @property {string} options - Compiler options
+ * @property {string} compiler - The compiler ID
+ */
+
+/**
+ * Compiler Explorer component
+ *
+ * @typedef {Object} CEComponent
+ * @property {string} type - Component type
+ * @property {string} componentName - The name of the component
+ * @property {CECodeEditorState|CECompilerState} componentState - The component state
+ */
+
+/**
+ * Compiler Explorer row content
+ *
+ * @typedef {Object} CERowContent
+ * @property {string} type - Always "row" for row content
+ * @property {Array<CEComponent>} content - The row's components
+ */
+
+/**
+ * Compiler Explorer layout configuration
+ *
+ * @typedef {Object} CELayoutConfig
+ * @property {number} version - The layout version
+ * @property {Array<CERowContent>} content - The layout content
+ */
+
+/**
+ * Parsed code block data
+ *
+ * @typedef {Object} ParsedCodeBlock
+ * @property {string} language - The programming language
+ * @property {string} compiler - The compiler ID
+ * @property {string} options - The compiler options
+ * @property {string} source - The complete source code for Compiler Explorer
+ * @property {string} displaySource - The source code for display in the presentation
+ */
+
+/**
+ * Compiler Explorer reveal.js plugin configuration options
  *
  * @typedef {Object} CompilerExplorerConfig
  * @property {string} [baseUrl] - The base URL for the Compiler Explorer instance. Defaults to "https://slides.compiler-explorer.com".
