@@ -1,3 +1,9 @@
+/**
+ * Trims leading and trailing empty lines, and optionally undents code.
+ * @param {string[]} sourceList - Array of source code lines
+ * @param {boolean} undent - Whether to undent the code
+ * @returns {string} - Processed source code
+ */
 function trim(sourceList, undent) {
     while (sourceList.length > 0 && sourceList[0].trim() === '') {
         sourceList.shift();
@@ -5,7 +11,7 @@ function trim(sourceList, undent) {
     while (sourceList.length > 0 && sourceList[sourceList.length - 1].trim() === '') {
         sourceList.pop();
     }
-    if (undent) {
+    if (undent && sourceList.length > 0) {
         const indent = sourceList.reduce((acc, line) => {
             if (line.trim() === '') return acc;
             const leadingSpace = line.match(/^\s*/)[0].length;
@@ -16,6 +22,13 @@ function trim(sourceList, undent) {
     return sourceList.join('\n');
 }
 
+/**
+ * Parses a code block, processing special comments and preparing both the complete source
+ * (for Compiler Explorer) and the display source (for presentation).
+ * @param {Object} config - The configuration object
+ * @param {HTMLElement} element - The code element to parse
+ * @returns {Object} - Object containing parsed information
+ */
 function parseCodeBlock(config, element) {
     const hideMatcher = /^\s*\/\/\/\s*((un)?hide)\s*$/;
     const lines = element.textContent.split('\n');
@@ -52,6 +65,15 @@ function parseCodeBlock(config, element) {
     };
 }
 
+/**
+ * Creates a Compiler Explorer URL fragment for the given source code and options.
+ * @param {Object} config - The configuration object
+ * @param {string} source - The complete source code to send to Compiler Explorer
+ * @param {string} options - The compiler options
+ * @param {string} language - The programming language
+ * @param {string} compiler - The compiler ID
+ * @returns {string} - URL-encoded JSON configuration for Compiler Explorer
+ */
 function createCompilerExplorerLink(config, source, options, language, compiler) {
     const content = [
         {
@@ -137,14 +159,13 @@ function attachEventListeners(config, element, ceFragment) {
  *
  * @typedef {Object} CompilerExplorerConfig
  * @property {string} [baseUrl] - The base URL for the Compiler Explorer instance. Defaults to "https://slides.compiler-explorer.com".
- * @property {string} [additionalCompilerOptions] - Additional compiler options to be appended to the default options.
  * @property {string} [defaultLanguage] - The language to use by default. Defaults to "c++".
  * @property {string} [defaultCompiler] - The ID of the default compiler to use. Defaults to "g142".
- * @property {string} [defaultCompilerOptions] - The default compiler options to use. Defaults to "-O2 -march=haswell".
+ * @property {string} [defaultCompilerOptions] - The default compiler options to use. Defaults to "-O1".
+ * @property {string} [additionalCompilerOptions] - Additional compiler options to be appended to the default options. Defaults to "-Wall -Wextra".
  * @property {number} [editorFontScale] - The font scale for the editor. Defaults to 2.5.
  * @property {number} [compilerFontScale] - The font scale for the compiler. Defaults to 3.0.
- * @property {number} [maxLineLength] - The maximum line length for a code block. Defaults to 50.
- * @property {string} [additionalCompilerOptions] - Additional compiler options to be appended to the default options.
+ * @property {number} [maxLineLength] - The maximum line length for a code block. Defaults to 50. Lines exceeding this will log warnings to the console.
  * @property {boolean} [intelSyntax] - Whether to use Intel syntax for the compiler output. Defaults to true.
  * @property {boolean} [trimAsmWhitespace] - Whether to trim whitespace from the compiler output. Defaults to true.
  * @property {boolean} [undent] - Whether to undent the displayed code block. Defaults to true.

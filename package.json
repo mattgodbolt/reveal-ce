@@ -1,4 +1,22 @@
 {
+  "name": "reveal-ce",
+  "version": "1.0.0",
+  "description": "Compiler Explorer plugin for reveal.js presentations",
+  "main": "index.js",
+  "type": "module",
+  "keywords": [
+    "reveal.js",
+    "compiler-explorer",
+    "presentation",
+    "c++",
+    "plugin"
+  ],
+  "author": "Matt Godbolt",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mattgodbolt/reveal-ce.git"
+  },
   "devDependencies": {
     "prettier": "3.3.3"
   }
