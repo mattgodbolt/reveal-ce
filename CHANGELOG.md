@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/mattgodbolt/reveal-ce/compare/v1.0.0...v1.1.0) (2025-05-08)
+
+### Features
+
+- first published version
+  ([2bb2601](https://github.com/mattgodbolt/reveal-ce/commit/2bb2601128bafab9e403cbfc49eff77f9cd232ac))
+
 # 1.0.0 (2025-05-08)
 
 ### Bug Fixes

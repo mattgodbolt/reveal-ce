@@ -1,6 +1,6 @@
 {
   "name": "reveal-ce",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Compiler Explorer plugin for reveal.js presentations",
   "main": "index.js",
   "type": "module",
