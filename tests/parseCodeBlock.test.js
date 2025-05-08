@@ -53,6 +53,46 @@ describe('parseCodeBlock function', () => {
         expect(result.displaySource).toContain('main');
     });
 
+    it('should handle empty lines correctly in setup mode', () => {
+        // This test verifies handling of empty lines in setup mode
+        mockElement = {
+            textContent: '// setup\n\nint main() { return 0; }',
+            dataset: {},
+        };
+
+        try {
+            const result = parseCodeBlock(mockConfig, mockElement);
+
+            // Should keep all code in source
+            expect(result.source).toContain('main');
+
+            // Empty lines in setup should not cause errors
+            expect(result.displaySource).toContain('main');
+        } catch (e) {
+            // This will make the test fail if an error occurs
+            expect(e).toBeUndefined();
+        }
+    });
+
+    it('should properly maintain setup mode through empty lines', () => {
+        mockElement = {
+            textContent: '// setup\n #include <iostream>\n\n\n int main() { return 0; }',
+            dataset: {},
+        };
+
+        const result = parseCodeBlock(mockConfig, mockElement);
+
+        // All lines should be in source
+        expect(result.source).toContain('#include');
+        expect(result.source).toContain('main');
+
+        // Nothing should appear in display source
+        // because all code has leading spaces keeping it in setup mode
+        expect(result.displaySource).not.toContain('#include');
+        expect(result.displaySource).not.toContain('main');
+        expect(result.displaySource).toBe('');
+    });
+
     it('should use dataset attributes if provided', () => {
         // Setup element with custom attributes
         mockElement = {

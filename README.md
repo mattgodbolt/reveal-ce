@@ -61,8 +61,8 @@ Example:
 ```html
 <pre><code data-ce data-ce-compiler="g142" data-ce-options="-O3 -march=haswell" data-ce-language="c++">
     int multiply(int a, int b) {
-    return a * b;
-}
+        return a * b;
+    }
 </code></pre>
 ```
 
@@ -188,8 +188,9 @@ When contributing:
 1. Fork the repository and create a feature branch
 2. Make your changes
 3. Run tests with `npm test`
-4. Create commits using `npm run commit` which will guide you through creating a properly formatted commit message
-5. Submit a pull request
+4. Optionally check test coverage with `npm run test:coverage`
+5. Create commits using `npm run commit` which will guide you through creating a properly formatted commit message
+6. Submit a pull request
 
 The project uses semantic-release for automated versioning and publishing to npm. Version numbers are determined
 automatically based on commit types:

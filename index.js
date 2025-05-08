@@ -2,7 +2,7 @@
  * Trims leading and trailing empty lines, and optionally undents code.
  * @param {string[]} sourceList - Array of source code lines
  * @param {boolean} undent - Whether to undent the code
- * @returns {string} - Processed source code
+ * @returns {string} - Processed source code with empty lines removed and optionally undented
  */
 export function trim(sourceList, undent) {
     while (sourceList.length > 0 && sourceList[0].trim() === '') {
@@ -27,7 +27,7 @@ export function trim(sourceList, undent) {
  * (for Compiler Explorer) and the display source (for presentation).
  * @param {CompilerExplorerConfig} config - The configuration object
  * @param {HTMLElement} element - The code element to parse
- * @param {Function} logger - Function to log errors (defaults to console.error)
+ * @param {Function} [logger=console.error] - Function to log errors
  * @returns {ParsedCodeBlock} - Object containing parsed information
  */
 export function parseCodeBlock(config, element, logger = console.error) {
@@ -46,7 +46,7 @@ export function parseCodeBlock(config, element, logger = console.error) {
         }
         if (line === '// setup') {
             skipDisplay = true;
-        } else if (line[0] !== ' ') {
+        } else if (line.length > 0 && !line.startsWith(' ')) {
             skipDisplay = false;
         }
 
@@ -136,8 +136,8 @@ export function createCompilerExplorerLink(config, source, options, language, co
 
 /**
  * Initializes the configuration for the Compiler Explorer plugin.
- * @param {Object} deck - The reveal.js deck instance.
- * @returns {CompilerExplorerConfig} - The configuration object.
+ * @param {Object} deck - The reveal.js deck instance with getConfig method
+ * @returns {CompilerExplorerConfig} - The merged configuration object with defaults and user overrides
  */
 export function initializeConfig(deck) {
     const defaultConfig = {
@@ -160,10 +160,10 @@ export function initializeConfig(deck) {
 
 /**
  * Attaches event listeners to the code element.
- * @param {CompilerExplorerConfig} config - The configuration object.
- * @param {HTMLElement} element - The code element.
- * @param {string} ceFragment - The Compiler Explorer link fragment.
- * @param {Function} urlLauncher - Function to launch URLs (defaults to window.location.assign)
+ * @param {CompilerExplorerConfig} config - The configuration object
+ * @param {HTMLElement} element - The code element
+ * @param {string} ceFragment - The Compiler Explorer link fragment
+ * @param {Function} [urlLauncher=url => window.location.assign(url)] - Function to launch URLs
  */
 export function attachEventListeners(config, element, ceFragment, urlLauncher = url => window.location.assign(url)) {
     // Attach `onclick` to the (presumed `<pre>`) parent element. That way if data-line-numbers is used (which creates
