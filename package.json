@@ -26,7 +26,8 @@
     "prepare": "husky",
     "commit": "npx cz",
     "semantic-release": "semantic-release",
-    "commitlint": "commitlint --edit"
+    "commitlint": "commitlint --edit",
+    "lint-staged": "lint-staged"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
