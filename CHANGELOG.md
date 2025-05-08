@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/mattgodbolt/reveal-ce/compare/v1.1.0...v1.1.1) (2025-05-08)
+
+### Bug Fixes
+
+- prevent empty lines from breaking setup mode in parseCodeBlock
+  ([8dbe4df](https://github.com/mattgodbolt/reveal-ce/commit/8dbe4dfd85f5d8ce31f689cb5d953ea4f64b98ea))
+
 # [1.1.0](https://github.com/mattgodbolt/reveal-ce/compare/v1.0.0...v1.1.0) (2025-05-08)
 
 ### Features
