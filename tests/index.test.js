@@ -1,13 +1,15 @@
-import {describe, it, expect, vi, beforeEach} from 'vitest';
+import {describe, it, expect, vi} from 'vitest';
 import plugin from '../index.js';
+import {createURLLauncher, setupDOM, createMockDeck} from './testUtils.js';
 
-// Mock DOM environment
-function setupDom() {
-    document.body.innerHTML = `
-        <div class="reveal">
-            <div class="slides">
-                <section>
-                    <pre><code data-ce="true" data-ce-language="c++" data-ce-compiler="g142">// setup
+describe('reveal-ce plugin', () => {
+    beforeEach(() => {
+        // Reset DOM for each test
+        document.body.innerHTML = '';
+        
+        // Setup the test DOM with our sample code
+        setupDOM({
+            codeContent: `// setup
 #include <iostream>
 
 ///hide
@@ -20,42 +22,21 @@ int hiddenFunc() {
 int main() {
     std::cout << "Hello, world!" << std::endl;
     return 0;
-}</code></pre>
-                </section>
-                <section>
-                    <pre><code data-ce="true">int simple() {
+}`,
+            attributes: {
+                "ce": "true",
+                "ce-language": "c++",
+                "ce-compiler": "g142"
+            }
+        });
+        
+        // Add a second code element for testing
+        const slidesSection = document.querySelector('.slides');
+        const newSection = document.createElement('section');
+        newSection.innerHTML = `<pre><code data-ce="true">int simple() {
     return 0;
-}</code></pre>
-                </section>
-            </div>
-        </div>
-    `;
-}
-
-describe('reveal-ce plugin', () => {
-    // Mock window.location before any tests run
-    const originalLocation = window.location;
-
-    beforeEach(() => {
-        // Reset DOM for each test
-        document.body.innerHTML = '';
-        setupDom();
-
-        // Mock window.location
-        delete window.location;
-        window.location = {
-            assign: vi.fn(),
-        };
-
-        // Mock console.error to avoid noise from line length warnings
-        console.error = vi.fn();
-    });
-
-    afterEach(() => {
-        // Restore original location
-        window.location = originalLocation;
-        // Restore console.error
-        console.error = vi.fn().mockRestore();
+}</code></pre>`;
+        slidesSection.appendChild(newSection);
     });
 
     describe('plugin initialization', () => {
@@ -66,14 +47,16 @@ describe('reveal-ce plugin', () => {
         });
 
         it('should process code blocks with data-ce attribute', () => {
+            // Create mock logger to avoid noise from line length warnings
+            const mockLogger = vi.fn();
+            
             // Setup reveal.js deck mock
-            const mockDeck = {
-                getSlidesElement: () => document.querySelector('.slides'),
-                getConfig: () => ({ce: null}), // Use default config
-            };
+            const mockDeck = createMockDeck({ce: null}); // Use default config
 
-            // Initialize the plugin
-            const pluginDef = plugin();
+            // Initialize the plugin with injected dependencies
+            const pluginDef = plugin({
+                logger: mockLogger
+            });
             pluginDef.init(mockDeck);
 
             // Check if the code blocks were processed
@@ -95,64 +78,70 @@ describe('reveal-ce plugin', () => {
 
     describe('click handling', () => {
         it('should open Compiler Explorer when Ctrl+Click is used', () => {
+            // Create URL launcher mock
+            const urlLauncher = createURLLauncher();
+            
             // Setup reveal.js deck mock
-            const mockDeck = {
-                getSlidesElement: () => document.querySelector('.slides'),
-                getConfig: () => ({ce: null}), // Use default config
-            };
+            const mockDeck = createMockDeck({ce: null}); // Use default config
 
-            // Initialize the plugin
-            const pluginDef = plugin();
+            // Initialize the plugin with injected URL launcher
+            const pluginDef = plugin({
+                urlLauncher: urlLauncher.navigate
+            });
             pluginDef.init(mockDeck);
 
             // Find the pre element and simulate a ctrl+click
             const preElement = document.querySelector('pre');
             preElement.onclick({ctrlKey: true});
 
-            // Check if location.assign was called with a Compiler Explorer URL
-            expect(window.location.assign).toHaveBeenCalled();
-            const url = window.location.assign.mock.calls[0][0];
+            // Check if our URL launcher was called with a Compiler Explorer URL
+            expect(urlLauncher.getMockImplementation()).toHaveBeenCalled();
+            const url = urlLauncher.getMockImplementation().mock.calls[0][0];
             expect(url).toContain('https://slides.compiler-explorer.com');
             expect(url).toContain('#');
         });
 
         it('should not open Compiler Explorer on regular click', () => {
+            // Create URL launcher mock
+            const urlLauncher = createURLLauncher();
+            
             // Setup reveal.js deck mock
-            const mockDeck = {
-                getSlidesElement: () => document.querySelector('.slides'),
-                getConfig: () => ({ce: null}), // Use default config
-            };
+            const mockDeck = createMockDeck({ce: null}); // Use default config
 
-            // Initialize the plugin
-            const pluginDef = plugin();
+            // Initialize the plugin with injected URL launcher
+            const pluginDef = plugin({
+                urlLauncher: urlLauncher.navigate
+            });
             pluginDef.init(mockDeck);
 
             // Find the pre element and simulate a regular click
             const preElement = document.querySelector('pre');
             preElement.onclick({ctrlKey: false});
 
-            // Check that location.assign was not called
-            expect(window.location.assign).not.toHaveBeenCalled();
+            // Check that our URL launcher was not called
+            expect(urlLauncher.getMockImplementation()).not.toHaveBeenCalled();
         });
     });
 
     describe('custom configuration', () => {
         it('should honor custom configuration options', () => {
+            // Create URL launcher mock
+            const urlLauncher = createURLLauncher();
+            
             // Setup reveal.js deck with custom config
-            const mockDeck = {
-                getSlidesElement: () => document.querySelector('.slides'),
-                getConfig: () => ({
-                    ce: {
-                        baseUrl: 'https://godbolt.org',
-                        defaultLanguage: 'rust',
-                        defaultCompiler: 'rust',
-                        defaultCompilerOptions: '-O3',
-                    },
-                }),
-            };
+            const mockDeck = createMockDeck({
+                ce: {
+                    baseUrl: 'https://godbolt.org',
+                    defaultLanguage: 'rust',
+                    defaultCompiler: 'rust',
+                    defaultCompilerOptions: '-O3',
+                }
+            });
 
-            // Initialize the plugin
-            const pluginDef = plugin();
+            // Initialize the plugin with injected URL launcher
+            const pluginDef = plugin({
+                urlLauncher: urlLauncher.navigate
+            });
             pluginDef.init(mockDeck);
 
             // Find the pre element and simulate a ctrl+click
@@ -160,8 +149,8 @@ describe('reveal-ce plugin', () => {
             preElement.onclick({ctrlKey: true});
 
             // Check that the custom baseUrl was used
-            expect(window.location.assign).toHaveBeenCalled();
-            const url = window.location.assign.mock.calls[0][0];
+            expect(urlLauncher.getMockImplementation()).toHaveBeenCalled();
+            const url = urlLauncher.getMockImplementation().mock.calls[0][0];
             expect(url).toContain('https://godbolt.org');
         });
     });

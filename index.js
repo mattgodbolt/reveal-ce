@@ -27,9 +27,10 @@ export function trim(sourceList, undent) {
  * (for Compiler Explorer) and the display source (for presentation).
  * @param {CompilerExplorerConfig} config - The configuration object
  * @param {HTMLElement} element - The code element to parse
+ * @param {Function} logger - Function to log errors (defaults to console.error)
  * @returns {ParsedCodeBlock} - Object containing parsed information
  */
-export function parseCodeBlock(config, element) {
+export function parseCodeBlock(config, element, logger = console.error) {
     const hideMatcher = /^\s*\/\/\/\s*((un)?hide)\s*$/;
     const lines = element.textContent.split('\n');
     const source = [];
@@ -52,7 +53,7 @@ export function parseCodeBlock(config, element) {
         source.push(line);
         if (!skipDisplay && !hide) displaySource.push(line);
         if (line.length > config.maxLineLength) {
-            console.error(`Line too long: "${line}"`);
+            logger(`Line too long: "${line}"`);
         }
     }
 
@@ -162,13 +163,14 @@ export function initializeConfig(deck) {
  * @param {CompilerExplorerConfig} config - The configuration object.
  * @param {HTMLElement} element - The code element.
  * @param {string} ceFragment - The Compiler Explorer link fragment.
+ * @param {Function} urlLauncher - Function to launch URLs (defaults to window.location.assign)
  */
-export function attachEventListeners(config, element, ceFragment) {
+export function attachEventListeners(config, element, ceFragment, urlLauncher = url => window.location.assign(url)) {
     // Attach `onclick` to the (presumed `<pre>`) parent element. That way if data-line-numbers is used (which creates
     // multiple code elements), the click event will still work.
     element.parentElement.onclick = evt => {
         if (evt.ctrlKey) {
-            window.location.assign(`${config.baseUrl}#${ceFragment}`);
+            urlLauncher(`${config.baseUrl}#${ceFragment}`);
         }
     };
 }
@@ -274,9 +276,12 @@ export function attachEventListeners(config, element, ceFragment) {
 
 /**
  * Compiler Explorer reveal.js plugin.
+ * @param {Object} dependencies - Optional dependency injections for testing
+ * @param {Function} dependencies.logger - Function to log errors
+ * @param {Function} dependencies.urlLauncher - Function to launch URLs
  * @returns {{init: *, id: string}}
  */
-export default () => ({
+export default (dependencies = {}) => ({
     id: 'compiler-explorer',
     init: deck => {
         // Find all [data-ce] nodes, which is _usually_ on the `code` block but to support Markdown can also be on the `<pre>`
@@ -286,9 +291,18 @@ export default () => ({
 
         for (let i = 0, len = ce_nodes.length; i < len; i++) {
             const element = ce_nodes[i];
-            const {language, compiler, options, source, displaySource} = parseCodeBlock(config, element);
+            const {language, compiler, options, source, displaySource} = parseCodeBlock(
+                config, 
+                element, 
+                dependencies.logger
+            );
             const ceFragment = createCompilerExplorerLink(config, source, options, language, compiler);
-            attachEventListeners(config, element, ceFragment);
+            attachEventListeners(
+                config, 
+                element, 
+                ceFragment, 
+                dependencies.urlLauncher
+            );
             // To allow the tags to be placed on the `<pre>` outside (for Markdown support), we check for a code block here.
             const maybeInnerCodeBlock = element.querySelectorAll('code');
             if (maybeInnerCodeBlock.length === 1) {

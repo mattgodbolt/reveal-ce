@@ -1,4 +1,4 @@
-import {describe, it, expect, vi, beforeEach} from 'vitest';
+import {describe, it, expect, vi} from 'vitest';
 import {parseCodeBlock} from '../index.js';
 
 describe('parseCodeBlock function', () => {
@@ -15,9 +15,6 @@ describe('parseCodeBlock function', () => {
             maxLineLength: 50,
             undent: true,
         };
-
-        // Mock console.error to avoid noise from line length warnings
-        console.error = vi.fn();
     });
 
     it('should parse code with hide markers correctly', () => {
@@ -96,11 +93,14 @@ describe('parseCodeBlock function', () => {
             textContent: 'int main() { /* This is a very long line that exceeds the max line length */ return 0; }',
             dataset: {},
         };
+        
+        // Setup mock logger
+        const mockLogger = vi.fn();
 
-        parseCodeBlock(mockConfig, mockElement);
+        parseCodeBlock(mockConfig, mockElement, mockLogger);
 
-        // Should log warning about long line
-        expect(console.error).toHaveBeenCalled();
+        // Should log warning about long line using our injected logger
+        expect(mockLogger).toHaveBeenCalled();
     });
 
     it('should support language-specific compiler mapping', () => {

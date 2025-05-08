@@ -1,23 +1,8 @@
-import {describe, it, expect, vi, beforeEach, afterEach} from 'vitest';
+import {describe, it, expect, vi} from 'vitest';
 import {attachEventListeners} from '../index.js';
+import {createURLLauncher} from './testUtils.js';
 
 describe('attachEventListeners function', () => {
-    // Store original window.location
-    const originalLocation = window.location;
-
-    beforeEach(() => {
-        // Mock window.location
-        delete window.location;
-        window.location = {
-            assign: vi.fn(),
-        };
-    });
-
-    afterEach(() => {
-        // Restore original window.location
-        window.location = originalLocation;
-    });
-
     it('should attach onclick handler to the parent element', () => {
         // Setup mocks
         const mockConfig = {
@@ -48,15 +33,18 @@ describe('attachEventListeners function', () => {
         };
 
         const ceFragment = 'mockFragment';
+        
+        // Create URL launcher mock
+        const urlLauncher = createURLLauncher();
 
-        // Call the function
-        attachEventListeners(mockConfig, mockElement, ceFragment);
+        // Call the function with our mock URL launcher
+        attachEventListeners(mockConfig, mockElement, ceFragment, urlLauncher.navigate);
 
         // Trigger Ctrl+Click
         mockElement.parentElement.onclick({ctrlKey: true});
 
         // Verify navigation occurred with correct URL
-        expect(window.location.assign).toHaveBeenCalledWith('https://godbolt.org#mockFragment');
+        expect(urlLauncher.getMockImplementation()).toHaveBeenCalledWith('https://godbolt.org#mockFragment');
     });
 
     it('should not navigate on regular click', () => {
@@ -70,14 +58,17 @@ describe('attachEventListeners function', () => {
         };
 
         const ceFragment = 'mockFragment';
+        
+        // Create URL launcher mock
+        const urlLauncher = createURLLauncher();
 
-        // Call the function
-        attachEventListeners(mockConfig, mockElement, ceFragment);
+        // Call the function with our mock URL launcher
+        attachEventListeners(mockConfig, mockElement, ceFragment, urlLauncher.navigate);
 
         // Trigger regular click (no Ctrl key)
         mockElement.parentElement.onclick({ctrlKey: false});
 
         // Verify no navigation occurred
-        expect(window.location.assign).not.toHaveBeenCalled();
+        expect(urlLauncher.getMockImplementation()).not.toHaveBeenCalled();
     });
 });
