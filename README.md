@@ -1,5 +1,8 @@
 ### Compiler Explorer reveal.js plugin
 
+[![CI](https://github.com/mattgodbolt/reveal-ce/actions/workflows/ci.yml/badge.svg)](https://github.com/mattgodbolt/reveal-ce/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/mattgodbolt/reveal-ce/branch/main/graph/badge.svg)](https://codecov.io/gh/mattgodbolt/reveal-ce)
+
 This is a small plugin for [reveal.js](https://revealjs.com/) that turns C++ `<code>` blocks into presentation-ready
 Compiler-Explorer-linked snippets. It supports:
 
