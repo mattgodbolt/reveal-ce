@@ -292,17 +292,12 @@ export default (dependencies = {}) => ({
         for (let i = 0, len = ce_nodes.length; i < len; i++) {
             const element = ce_nodes[i];
             const {language, compiler, options, source, displaySource} = parseCodeBlock(
-                config, 
-                element, 
-                dependencies.logger
+                config,
+                element,
+                dependencies.logger,
             );
             const ceFragment = createCompilerExplorerLink(config, source, options, language, compiler);
-            attachEventListeners(
-                config, 
-                element, 
-                ceFragment, 
-                dependencies.urlLauncher
-            );
+            attachEventListeners(config, element, ceFragment, dependencies.urlLauncher);
             // To allow the tags to be placed on the `<pre>` outside (for Markdown support), we check for a code block here.
             const maybeInnerCodeBlock = element.querySelectorAll('code');
             if (maybeInnerCodeBlock.length === 1) {

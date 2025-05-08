@@ -33,7 +33,7 @@ describe('attachEventListeners function', () => {
         };
 
         const ceFragment = 'mockFragment';
-        
+
         // Create URL launcher mock
         const urlLauncher = createURLLauncher();
 
@@ -58,7 +58,7 @@ describe('attachEventListeners function', () => {
         };
 
         const ceFragment = 'mockFragment';
-        
+
         // Create URL launcher mock
         const urlLauncher = createURLLauncher();
 

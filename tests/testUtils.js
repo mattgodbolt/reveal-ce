@@ -7,10 +7,10 @@ import {vi} from 'vitest';
  */
 export function createURLLauncher() {
     const mockNavigate = vi.fn();
-    
+
     return {
         navigate: url => mockNavigate(url),
-        getMockImplementation: () => mockNavigate
+        getMockImplementation: () => mockNavigate,
     };
 }
 
@@ -22,16 +22,13 @@ export function createURLLauncher() {
  * @returns {HTMLElement} The container element
  */
 export function setupDOM(options = {}) {
-    const {
-        codeContent = '// Default code',
-        attributes = {}
-    } = options;
-    
+    const {codeContent = '// Default code', attributes = {}} = options;
+
     // Create attributes string
     const attributesStr = Object.entries(attributes)
         .map(([key, value]) => `data-${key}="${value}"`)
         .join(' ');
-    
+
     document.body.innerHTML = `
         <div class="reveal">
             <div class="slides">
@@ -41,7 +38,7 @@ export function setupDOM(options = {}) {
             </div>
         </div>
     `;
-    
+
     return document.body;
 }
 
@@ -53,6 +50,6 @@ export function setupDOM(options = {}) {
 export function createMockDeck(config = {}) {
     return {
         getSlidesElement: () => document.querySelector('.slides'),
-        getConfig: () => config
+        getConfig: () => config,
     };
 }

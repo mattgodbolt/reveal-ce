@@ -93,7 +93,7 @@ describe('parseCodeBlock function', () => {
             textContent: 'int main() { /* This is a very long line that exceeds the max line length */ return 0; }',
             dataset: {},
         };
-        
+
         // Setup mock logger
         const mockLogger = vi.fn();
 

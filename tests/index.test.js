@@ -6,7 +6,7 @@ describe('reveal-ce plugin', () => {
     beforeEach(() => {
         // Reset DOM for each test
         document.body.innerHTML = '';
-        
+
         // Setup the test DOM with our sample code
         setupDOM({
             codeContent: `// setup
@@ -24,12 +24,12 @@ int main() {
     return 0;
 }`,
             attributes: {
-                "ce": "true",
-                "ce-language": "c++",
-                "ce-compiler": "g142"
-            }
+                ce: 'true',
+                'ce-language': 'c++',
+                'ce-compiler': 'g142',
+            },
         });
-        
+
         // Add a second code element for testing
         const slidesSection = document.querySelector('.slides');
         const newSection = document.createElement('section');
@@ -49,13 +49,13 @@ int main() {
         it('should process code blocks with data-ce attribute', () => {
             // Create mock logger to avoid noise from line length warnings
             const mockLogger = vi.fn();
-            
+
             // Setup reveal.js deck mock
             const mockDeck = createMockDeck({ce: null}); // Use default config
 
             // Initialize the plugin with injected dependencies
             const pluginDef = plugin({
-                logger: mockLogger
+                logger: mockLogger,
             });
             pluginDef.init(mockDeck);
 
@@ -80,13 +80,13 @@ int main() {
         it('should open Compiler Explorer when Ctrl+Click is used', () => {
             // Create URL launcher mock
             const urlLauncher = createURLLauncher();
-            
+
             // Setup reveal.js deck mock
             const mockDeck = createMockDeck({ce: null}); // Use default config
 
             // Initialize the plugin with injected URL launcher
             const pluginDef = plugin({
-                urlLauncher: urlLauncher.navigate
+                urlLauncher: urlLauncher.navigate,
             });
             pluginDef.init(mockDeck);
 
@@ -104,13 +104,13 @@ int main() {
         it('should not open Compiler Explorer on regular click', () => {
             // Create URL launcher mock
             const urlLauncher = createURLLauncher();
-            
+
             // Setup reveal.js deck mock
             const mockDeck = createMockDeck({ce: null}); // Use default config
 
             // Initialize the plugin with injected URL launcher
             const pluginDef = plugin({
-                urlLauncher: urlLauncher.navigate
+                urlLauncher: urlLauncher.navigate,
             });
             pluginDef.init(mockDeck);
 
@@ -127,7 +127,7 @@ int main() {
         it('should honor custom configuration options', () => {
             // Create URL launcher mock
             const urlLauncher = createURLLauncher();
-            
+
             // Setup reveal.js deck with custom config
             const mockDeck = createMockDeck({
                 ce: {
@@ -135,12 +135,12 @@ int main() {
                     defaultLanguage: 'rust',
                     defaultCompiler: 'rust',
                     defaultCompilerOptions: '-O3',
-                }
+                },
             });
 
             // Initialize the plugin with injected URL launcher
             const pluginDef = plugin({
-                urlLauncher: urlLauncher.navigate
+                urlLauncher: urlLauncher.navigate,
             });
             pluginDef.init(mockDeck);
 
