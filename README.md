@@ -157,16 +157,20 @@ do the right thing and process the code appropriately.
 
 ### Contributing
 
-This project uses [Conventional Commits](https://www.conventionalcommits.org/) for standardized commit messages, which enables automated versioning and changelog generation.
+This project uses [Conventional Commits](https://www.conventionalcommits.org/) for standardized commit messages, which
+enables automated versioning and changelog generation.
 
 When contributing:
+
 1. Fork the repository and create a feature branch
 2. Make your changes
 3. Run tests with `npm test`
 4. Create commits using `npm run commit` which will guide you through creating a properly formatted commit message
 5. Submit a pull request
 
-The project uses semantic-release for automated versioning and publishing to npm. Version numbers are determined automatically based on commit types:
+The project uses semantic-release for automated versioning and publishing to npm. Version numbers are determined
+automatically based on commit types:
+
 - `feat:` - Minor version bump (1.0.0 → 1.1.0)
 - `fix:` - Patch version bump (1.0.0 → 1.0.1)
 - `feat!:` or `fix!:` or commits with `BREAKING CHANGE:` in the footer - Major version bump (1.0.0 → 2.0.0)

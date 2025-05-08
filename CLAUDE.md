@@ -27,7 +27,8 @@ snippets. It allows users to:
 
 ## Commit Guidelines
 
-This project uses [Conventional Commits](https://www.conventionalcommits.org/) for standardized commit messages, which enable automated versioning via semantic-release. The format is:
+This project uses [Conventional Commits](https://www.conventionalcommits.org/) for standardized commit messages, which
+enable automated versioning via semantic-release. The format is:
 
 ```
 <type>(<optional scope>): <description>
@@ -38,6 +39,7 @@ This project uses [Conventional Commits](https://www.conventionalcommits.org/) f
 ```
 
 Common types:
+
 - `feat:` - A new feature (triggers MINOR version bump: 1.0.0 → 1.1.0)
 - `fix:` - A bug fix (triggers PATCH version bump: 1.0.0 → 1.0.1)
 - `docs:` - Documentation changes (no version bump)
@@ -48,9 +50,11 @@ Common types:
 - `ci:` - Changes to CI configuration (no version bump)
 
 Breaking changes are indicated with an exclamation mark after the type/scope or with a footer:
+
 - `feat!:` or `BREAKING CHANGE:` in footer - (triggers MAJOR version bump: 1.0.0 → 2.0.0)
 
 To create a commit:
+
 1. Stage your changes with `git add`
 2. Run `npm run commit` (instead of `git commit`)
 3. Follow the interactive prompts to create a proper conventional commit
