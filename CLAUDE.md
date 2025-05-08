@@ -11,6 +11,14 @@ snippets. It allows users to:
 - Hide regions of code in the presentation view while keeping them in the Compiler Explorer link
 - Define setup regions
 - Configure the Compiler Explorer instance
+- Filter content (like comments) from code sent to Compiler Explorer using regex patterns
+
+## Documentation Practices
+
+- When adding new features, always update the README.md with appropriate documentation
+- DO NOT update the CHANGELOG.md as it is automatically managed by semantic-release during the release process
+- Include examples in documentation whenever possible to illustrate usage
+- Document both per-code-block attributes and global configuration options
 
 ## Repository Structure
 
@@ -65,11 +73,12 @@ The commit hook will validate your commit message format using commitlint.
 
 The plugin consists of several key functions:
 
-1. `trim()` - Handles whitespace in code blocks and supports undenting
-2. `parseCodeBlock()` - Processes code blocks with special markers for hiding/setup regions
-3. `createCompilerExplorerLink()` - Generates properly formatted links to Compiler Explorer
-4. `initializeConfig()` - Sets up configuration with defaults and user overrides
-5. `attachEventListeners()` - Handles click events to open Compiler Explorer
+1. `getLanguageSpecificValue()` - Helper for handling language-specific configuration options
+2. `trim()` - Handles whitespace in code blocks and supports undenting
+3. `parseCodeBlock()` - Processes code blocks with special markers for hiding/setup regions
+4. `createCompilerExplorerLink()` - Generates properly formatted links to Compiler Explorer
+5. `initializeConfig()` - Sets up configuration with defaults and user overrides
+6. `attachEventListeners()` - Handles click events to open Compiler Explorer
 
 The plugin exports a reveal.js plugin interface with an `id` and `init` function that processes all code blocks with the
 `data-ce` attribute.

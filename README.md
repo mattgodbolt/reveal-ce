@@ -55,6 +55,7 @@ Each code block can have the following attributes to customize its behavior:
 - `data-ce-compiler` - Specifies the compiler to use for this code block
 - `data-ce-options` - Specifies the compiler options for this code block
 - `data-ce-language` - Overrides the language for this code block
+- `data-ce-remove-regex` - Specifies a regex pattern to remove content from code sent to Compiler Explorer
 
 Example:
 
@@ -63,6 +64,17 @@ Example:
     int multiply(int a, int b) {
         return a * b;
     }
+</code></pre>
+```
+
+Example with regex removal (removes comments from Compiler Explorer view):
+
+```html
+<pre><code data-ce data-ce-language="analysis" data-ce-remove-regex=";.*">
+    ldp x8, x9, [x0]    ; x8=begin, x9=end
+    mvn x10, x8         ; x10 = ~begin
+    add x9, x10, x9     ; x9 = end + ~begin
+                        ;    = end - begin - 1
 </code></pre>
 ```
 
@@ -77,6 +89,7 @@ Reveal.initialize({
     defaultCompiler: 'g142',
     defaultCompilerOptions: '-O3 -march=haswell',
     defaultLanguage: 'c++',
+    defaultRemoveRegex: '//\\s*DEBUG:.*', // Remove DEBUG comments in all languages
 
     // Or language-specific configuration
     defaultCompiler: {
@@ -94,6 +107,11 @@ Reveal.initialize({
       rust: '-C debuginfo=2',
       go: '',
     },
+    defaultRemoveRegex: {
+      'c++': '//\\s*NOTE:.*', // Remove C++ NOTE comments
+      analysis: ';.*', // Remove assembly-style comments
+      asm: ';.*', // Remove assembly comments
+    },
   },
 });
 ```
@@ -107,6 +125,7 @@ Reveal.initialize({
 | `defaultCompiler`           | string \| object | `'g142'`                                 | The ID of the default compiler to use. Can be a string (applies to all languages) or an object mapping language names to compiler IDs. To find compiler IDs, run `curl -sL https://compiler-explorer.org/api/compilers/c++ \| less`. |
 | `defaultCompilerOptions`    | string \| object | `'-O1'`                                  | The default compiler options to use. Can be a string (applies to all languages) or an object mapping language names to options.                                                                                                      |
 | `additionalCompilerOptions` | string \| object | `'-Wall -Wextra'`                        | Additional compiler options to always append to the defaults. Can be a string (applies to all languages) or an object mapping language names to options.                                                                             |
+| `defaultRemoveRegex`        | string \| object | `null`                                   | Regular expression pattern to remove content from code sent to Compiler Explorer. Can be a string (applies to all languages) or an object mapping language names to regex patterns. Used to hide content like comments in CE links.  |
 | `editorFontScale`           | number           | `2.5`                                    | The font scale for the code editor in Compiler Explorer.                                                                                                                                                                             |
 | `compilerFontScale`         | number           | `3.0`                                    | The font scale for the compiler output in Compiler Explorer.                                                                                                                                                                         |
 | `maxLineLength`             | number           | `50`                                     | Maximum line length for code blocks. Lines exceeding this will log warnings to the browser console. Useful to identify code blocks that might spill off the side of your presentation.                                               |
