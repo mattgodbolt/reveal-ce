@@ -4,7 +4,7 @@
  * @param {boolean} undent - Whether to undent the code
  * @returns {string} - Processed source code
  */
-function trim(sourceList, undent) {
+export function trim(sourceList, undent) {
     while (sourceList.length > 0 && sourceList[0].trim() === '') {
         sourceList.shift();
     }
@@ -29,7 +29,7 @@ function trim(sourceList, undent) {
  * @param {HTMLElement} element - The code element to parse
  * @returns {ParsedCodeBlock} - Object containing parsed information
  */
-function parseCodeBlock(config, element) {
+export function parseCodeBlock(config, element) {
     const hideMatcher = /^\s*\/\/\/\s*((un)?hide)\s*$/;
     const lines = element.textContent.split('\n');
     const source = [];
@@ -74,7 +74,7 @@ function parseCodeBlock(config, element) {
  * @param {string} compiler - The compiler ID
  * @returns {string} - URL-encoded JSON configuration for Compiler Explorer
  */
-function createCompilerExplorerLink(config, source, options, language, compiler) {
+export function createCompilerExplorerLink(config, source, options, language, compiler) {
     const content = [
         {
             type: 'component',
@@ -126,7 +126,7 @@ function createCompilerExplorerLink(config, source, options, language, compiler)
  * @param {Object} deck - The reveal.js deck instance.
  * @returns {CompilerExplorerConfig} - The configuration object.
  */
-function initializeConfig(deck) {
+export function initializeConfig(deck) {
     const defaultConfig = {
         baseUrl: 'https://slides.compiler-explorer.com',
         maxLineLength: 50,
@@ -151,7 +151,7 @@ function initializeConfig(deck) {
  * @param {HTMLElement} element - The code element.
  * @param {string} ceFragment - The Compiler Explorer link fragment.
  */
-function attachEventListeners(config, element, ceFragment) {
+export function attachEventListeners(config, element, ceFragment) {
     // Attach `onclick` to the (presumed `<pre>`) parent element. That way if data-line-numbers is used (which creates
     // multiple code elements), the click event will still work.
     element.parentElement.onclick = evt => {
