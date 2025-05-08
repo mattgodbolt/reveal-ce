@@ -69,7 +69,7 @@ function parseCodeBlock(config, element) {
  * Creates a Compiler Explorer URL fragment for the given source code and options.
  * @param {CompilerExplorerConfig} config - The configuration object
  * @param {string} source - The complete source code to send to Compiler Explorer
- * @param {string} options - The compiler options
+ * @param {string|Object<string, string>} options - The compiler options as string or language map
  * @param {string} language - The programming language
  * @param {string} compiler - The compiler ID
  * @returns {string} - URL-encoded JSON configuration for Compiler Explorer
@@ -99,7 +99,14 @@ function createCompilerExplorerLink(config, source, options, language, compiler)
                     labels: true,
                     trim: config.trimAsmWhitespace,
                 },
-                options: [options, config.additionalCompilerOptions].filter(Boolean).join(' '),
+                options: [
+                    typeof options === 'string' ? options : options?.[language] || '',
+                    typeof config.additionalCompilerOptions === 'string'
+                        ? config.additionalCompilerOptions
+                        : config.additionalCompilerOptions?.[language] || '',
+                ]
+                    .filter(Boolean)
+                    .join(' '),
                 compiler: compiler,
                 fontScale: config.compilerFontScale,
             },
@@ -243,8 +250,8 @@ function attachEventListeners(config, element, ceFragment) {
  * @property {string} [baseUrl] - The base URL for the Compiler Explorer instance. Defaults to "https://slides.compiler-explorer.com".
  * @property {string} [defaultLanguage] - The language to use by default. Defaults to "c++".
  * @property {string} [defaultCompiler] - The ID of the default compiler to use. Defaults to "g142".
- * @property {string} [defaultCompilerOptions] - The default compiler options to use. Defaults to "-O1".
- * @property {string} [additionalCompilerOptions] - Additional compiler options to be appended to the default options. Defaults to "-Wall -Wextra".
+ * @property {string|Object<string, string>} [defaultCompilerOptions] - The default compiler options to use. Can be a string (applies to all languages) or a map of language names to options. Defaults to "-O1".
+ * @property {string|Object<string, string>} [additionalCompilerOptions] - Additional compiler options to be appended to the default options. Can be a string (applies to all languages) or a map of language names to options. Defaults to "-Wall -Wextra".
  * @property {number} [editorFontScale] - The font scale for the editor. Defaults to 2.5.
  * @property {number} [compilerFontScale] - The font scale for the compiler. Defaults to 3.0.
  * @property {number} [maxLineLength] - The maximum line length for a code block. Defaults to 50. Lines exceeding this will log warnings to the console.
