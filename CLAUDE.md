@@ -27,7 +27,7 @@ snippets. It allows users to:
 
 ## Commit Guidelines
 
-This project uses [Conventional Commits](https://www.conventionalcommits.org/) for standardized commit messages. The format is:
+This project uses [Conventional Commits](https://www.conventionalcommits.org/) for standardized commit messages, which enable automated versioning via semantic-release. The format is:
 
 ```
 <type>(<optional scope>): <description>
@@ -38,16 +38,24 @@ This project uses [Conventional Commits](https://www.conventionalcommits.org/) f
 ```
 
 Common types:
-- `feat:` - A new feature
-- `fix:` - A bug fix
-- `docs:` - Documentation changes
-- `style:` - Code style changes (formatting, etc.)
-- `refactor:` - Code changes that neither fix bugs nor add features
-- `test:` - Adding or modifying tests
-- `chore:` - Changes to the build process or auxiliary tools
-- `ci:` - Changes to CI configuration
+- `feat:` - A new feature (triggers MINOR version bump: 1.0.0 → 1.1.0)
+- `fix:` - A bug fix (triggers PATCH version bump: 1.0.0 → 1.0.1)
+- `docs:` - Documentation changes (no version bump)
+- `style:` - Code style changes (no version bump)
+- `refactor:` - Code changes that neither fix bugs nor add features (no version bump)
+- `test:` - Adding or modifying tests (no version bump)
+- `chore:` - Changes to the build process or auxiliary tools (no version bump)
+- `ci:` - Changes to CI configuration (no version bump)
 
-Using `npm run commit` will guide you through creating properly formatted commits. The commit messages are used by semantic-release to determine version numbers automatically.
+Breaking changes are indicated with an exclamation mark after the type/scope or with a footer:
+- `feat!:` or `BREAKING CHANGE:` in footer - (triggers MAJOR version bump: 1.0.0 → 2.0.0)
+
+To create a commit:
+1. Stage your changes with `git add`
+2. Run `npm run commit` (instead of `git commit`)
+3. Follow the interactive prompts to create a proper conventional commit
+
+The commit hook will validate your commit message format using commitlint.
 
 ## Architecture Notes
 
