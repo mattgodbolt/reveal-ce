@@ -102,4 +102,26 @@ describe('parseCodeBlock function', () => {
         // Should log warning about long line
         expect(console.error).toHaveBeenCalled();
     });
+
+    it('should support language-specific compiler mapping', () => {
+        // Setup config with language-specific compiler mapping
+        mockConfig.defaultCompiler = {
+            'c++': 'g142',
+            rust: 'rust',
+        };
+
+        // Element with Rust language
+        mockElement = {
+            textContent: 'fn main() {}',
+            dataset: {
+                ceLanguage: 'rust',
+            },
+        };
+
+        const result = parseCodeBlock(mockConfig, mockElement);
+
+        // Should use language-specific compiler
+        expect(result.language).toBe('rust');
+        expect(result.compiler).toBe('rust');
+    });
 });

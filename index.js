@@ -56,10 +56,22 @@ export function parseCodeBlock(config, element) {
         }
     }
 
+    const language = element.dataset['ceLanguage'] || config.defaultLanguage;
+    const compiler =
+        element.dataset['ceCompiler'] ||
+        (typeof config.defaultCompiler === 'string'
+            ? config.defaultCompiler
+            : config.defaultCompiler?.[language] || 'g142');
+    const options =
+        element.dataset['ceOptions'] ||
+        (typeof config.defaultCompilerOptions === 'string'
+            ? config.defaultCompilerOptions
+            : config.defaultCompilerOptions?.[language] || '-O1');
+
     return {
-        language: element.dataset['ceLanguage'] || config.defaultLanguage,
-        compiler: element.dataset['ceCompiler'] || config.defaultCompiler,
-        options: element.dataset['ceOptions'] || config.defaultCompilerOptions,
+        language,
+        compiler,
+        options,
         source: trim(source, false),
         displaySource: trim(displaySource, config.undent),
     };
@@ -249,7 +261,7 @@ export function attachEventListeners(config, element, ceFragment) {
  * @typedef {Object} CompilerExplorerConfig
  * @property {string} [baseUrl] - The base URL for the Compiler Explorer instance. Defaults to "https://slides.compiler-explorer.com".
  * @property {string} [defaultLanguage] - The language to use by default. Defaults to "c++".
- * @property {string} [defaultCompiler] - The ID of the default compiler to use. Defaults to "g142".
+ * @property {string|Object<string, string>} [defaultCompiler] - The ID of the default compiler to use. Can be a string (applies to all languages) or a map of language names to compiler IDs. Defaults to "g142".
  * @property {string|Object<string, string>} [defaultCompilerOptions] - The default compiler options to use. Can be a string (applies to all languages) or a map of language names to options. Defaults to "-O1".
  * @property {string|Object<string, string>} [additionalCompilerOptions] - Additional compiler options to be appended to the default options. Can be a string (applies to all languages) or a map of language names to options. Defaults to "-Wall -Wextra".
  * @property {number} [editorFontScale] - The font scale for the editor. Defaults to 2.5.
