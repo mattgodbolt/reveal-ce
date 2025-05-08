@@ -48,48 +48,71 @@ This will generate a link to Compiler Explorer with the code in the block.
 
 ### Configuration
 
-Each code block can have a `data-ce-compiler` attribute to specify the compiler to use, and a `data-ce-options`
-attribute to specify the options to use. For example:
+#### Per Code Block Configuration
+
+Each code block can have the following attributes to customize its behavior:
+
+- `data-ce-compiler` - Specifies the compiler to use for this code block
+- `data-ce-options` - Specifies the compiler options for this code block
+- `data-ce-language` - Overrides the language for this code block
+
+Example:
 
 ```html
-<pre><code data-ce data-ce-compiler="g142" data-ce-options="-O3 -march=haswell">
+<pre><code data-ce data-ce-compiler="g142" data-ce-options="-O3 -march=haswell" data-ce-language="c++">
     int multiply(int a, int b) {
     return a * b;
 }
 </code></pre>
 ```
 
-You can also override the language used by setting the `data-ce-language`.
+#### Global Configuration Options
 
-Default values for these attributes can be set in the plugin options:
+Default values for all code blocks can be set in the plugin options:
 
 ```javascript
 Reveal.initialize({
   ce: {
+    // Basic configuration
     defaultCompiler: 'g142',
     defaultCompilerOptions: '-O3 -march=haswell',
+    defaultLanguage: 'c++',
+
+    // Or language-specific configuration
+    defaultCompiler: {
+      'c++': 'g142',
+      rust: 'r1650',
+      go: 'gl1180',
+    },
+    defaultCompilerOptions: {
+      'c++': '-O3 -march=haswell',
+      rust: '-C opt-level=2',
+      go: '',
+    },
+    additionalCompilerOptions: {
+      'c++': '-Wall -Wextra',
+      rust: '-C debuginfo=2',
+      go: '',
+    },
   },
 });
 ```
 
-Other supported options are:
+#### All Configuration Options
 
-- `defaultCompiler` - the ID of the compiler to use. Defaults to "g142". To find the ID of a compiler, run something
-  like `curl -sL https://compiler-explorer.org/api/compilers/c++ | less`.
-- `defaultCompilerOptions` - the default options to use. Defaults to "-O1".
-- `defaultLanguage` - the default language to use. Defaults to `c++`.
-- `additionalCompilerOptions` - additional compiler options to always add on. Defaults to "-Wall -Wextra".
-- `baseUrl` - the base URL of the Compiler Explorer instance to link to. Defaults to
-  "https://slides.compiler-explorer.com". (By using a subdomain, any Compiler Explorer global settings are scoped to
-  that subdomain; for example things like browser zooms, etc).
-- `maxLineLength` - code lines longer than this will log warnings in the browser console. Defaults to 50. Useful to
-  identify code blocks that might spill off the side of your presentation.
-- `editorFontScale` and `compilerFontScale` - the font scale to use for the editor and compiler output. Defaults to 2.5
-  and 3.0 respectively.
-- `intelSyntax` - whether to use Intel syntax for the compiler output. Defaults to true.
-- `trimAsmWhitespace` - whether to use the "trim" option for the compiler output on Compiler Explorer itself
-  (suppressing horizontal whitespace). Defaults to true.
-- `undent` - whether to undent the displayed code. Defaults to true.
+| Option                      | Type             | Default                                  | Description                                                                                                                                                                                                                          |
+| --------------------------- | ---------------- | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `baseUrl`                   | string           | `'https://slides.compiler-explorer.com'` | The base URL of the Compiler Explorer instance to link to. By using a subdomain, Compiler Explorer global settings are scoped to that subdomain (e.g., browser zooms).                                                               |
+| `defaultLanguage`           | string           | `'c++'`                                  | The default programming language to use for all code blocks.                                                                                                                                                                         |
+| `defaultCompiler`           | string \| object | `'g142'`                                 | The ID of the default compiler to use. Can be a string (applies to all languages) or an object mapping language names to compiler IDs. To find compiler IDs, run `curl -sL https://compiler-explorer.org/api/compilers/c++ \| less`. |
+| `defaultCompilerOptions`    | string \| object | `'-O1'`                                  | The default compiler options to use. Can be a string (applies to all languages) or an object mapping language names to options.                                                                                                      |
+| `additionalCompilerOptions` | string \| object | `'-Wall -Wextra'`                        | Additional compiler options to always append to the defaults. Can be a string (applies to all languages) or an object mapping language names to options.                                                                             |
+| `editorFontScale`           | number           | `2.5`                                    | The font scale for the code editor in Compiler Explorer.                                                                                                                                                                             |
+| `compilerFontScale`         | number           | `3.0`                                    | The font scale for the compiler output in Compiler Explorer.                                                                                                                                                                         |
+| `maxLineLength`             | number           | `50`                                     | Maximum line length for code blocks. Lines exceeding this will log warnings to the browser console. Useful to identify code blocks that might spill off the side of your presentation.                                               |
+| `intelSyntax`               | boolean          | `true`                                   | Whether to use Intel syntax for the assembly output (versus AT&T syntax).                                                                                                                                                            |
+| `trimAsmWhitespace`         | boolean          | `true`                                   | Whether to trim horizontal whitespace from the assembly output in Compiler Explorer.                                                                                                                                                 |
+| `undent`                    | boolean          | `true`                                   | Whether to automatically remove common leading whitespace from the displayed code blocks in the presentation (the Compiler Explorer link will still have the original indentation).                                                  |
 
 ### Hiding and setup
 
