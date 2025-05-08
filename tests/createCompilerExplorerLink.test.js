@@ -1,4 +1,4 @@
-import {describe, it, expect} from 'vitest';
+import {describe, it, expect, vi} from 'vitest';
 import {createCompilerExplorerLink} from '../index.js';
 
 describe('createCompilerExplorerLink function', () => {
@@ -118,5 +118,54 @@ describe('createCompilerExplorerLink function', () => {
 
         // Should still include additionalCompilerOptions
         expect(compilerComponent.componentState.options).toBe(mockConfig.additionalCompilerOptions);
+    });
+
+    it('should remove content matching regex pattern', () => {
+        const source = 'ldp x8, x9, [x0]    ; x8=begin, x9=end\nmvn x10, x8         ; x10 = ~begin';
+        const options = '-O2';
+        const language = 'asm';
+        const compiler = 'clang';
+        const removeRegex = ';.*';
+
+        const fragment = createCompilerExplorerLink(mockConfig, source, options, language, compiler, removeRegex);
+
+        // Decode and verify content
+        const decodedObj = JSON.parse(decodeURIComponent(fragment));
+        const editorComponent = decodedObj.content[0].content[0];
+
+        // Should have removed the comments
+        expect(editorComponent.componentState.source).toBe('ldp x8, x9, [x0]    \nmvn x10, x8         ');
+        // Original source should have comments
+        expect(source).toContain('; x8=begin');
+        expect(source).toContain('; x10 = ~begin');
+    });
+
+    it('should handle invalid regex patterns', () => {
+        const source = 'int main() { return 0; }';
+        const options = '-O2';
+        const language = 'c++';
+        const compiler = 'g142';
+        const removeRegex = '([unclosed'; // Invalid regex
+        const mockLogger = vi.fn();
+
+        const fragment = createCompilerExplorerLink(
+            mockConfig,
+            source,
+            options,
+            language,
+            compiler,
+            removeRegex,
+            mockLogger,
+        );
+
+        // Should log error for invalid regex
+        expect(mockLogger).toHaveBeenCalled();
+
+        // Decode and verify content still works
+        const decodedObj = JSON.parse(decodeURIComponent(fragment));
+        const editorComponent = decodedObj.content[0].content[0];
+
+        // Should not modify the source when regex is invalid
+        expect(editorComponent.componentState.source).toBe(source);
     });
 });

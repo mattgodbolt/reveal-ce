@@ -164,4 +164,57 @@ describe('parseCodeBlock function', () => {
         expect(result.language).toBe('rust');
         expect(result.compiler).toBe('rust');
     });
+
+    it('should extract removeRegex from data-ce-remove-regex attribute', () => {
+        // Setup element with remove regex attribute
+        mockElement = {
+            textContent: 'ldp x8, x9, [x0]    ; x8=begin, x9=end',
+            dataset: {
+                ceRemoveRegex: ';.*',
+            },
+        };
+
+        const result = parseCodeBlock(mockConfig, mockElement);
+
+        // Should extract the removeRegex
+        expect(result.removeRegex).toBe(';.*');
+    });
+
+    it('should use defaultRemoveRegex from config when attribute not provided', () => {
+        // Setup config with default removeRegex
+        mockConfig.defaultRemoveRegex = ';.*';
+
+        // Element without remove regex attribute
+        mockElement = {
+            textContent: 'ldp x8, x9, [x0]    ; x8=begin, x9=end',
+            dataset: {},
+        };
+
+        const result = parseCodeBlock(mockConfig, mockElement);
+
+        // Should use config default
+        expect(result.removeRegex).toBe(';.*');
+    });
+
+    it('should support language-specific defaultRemoveRegex', () => {
+        // Setup config with language-specific removeRegex
+        mockConfig.defaultRemoveRegex = {
+            'c++': '//.*',
+            asm: ';.*',
+        };
+
+        // Element with asm language
+        mockElement = {
+            textContent: 'ldp x8, x9, [x0]    ; x8=begin, x9=end',
+            dataset: {
+                ceLanguage: 'asm',
+            },
+        };
+
+        const result = parseCodeBlock(mockConfig, mockElement);
+
+        // Should use language-specific removeRegex
+        expect(result.language).toBe('asm');
+        expect(result.removeRegex).toBe(';.*');
+    });
 });

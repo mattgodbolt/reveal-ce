@@ -1,4 +1,17 @@
 /**
+ * Gets a configuration value that can be either a string (applying to all languages)
+ * or an object mapping languages to specific values.
+ * @param {string|Object<string, string>} value - The configuration value
+ * @param {string} language - The programming language
+ * @param {string} [defaultValue] - Default value if no language-specific value is found
+ * @returns {string} - The resolved configuration value for the given language
+ */
+export function getLanguageSpecificValue(value, language, defaultValue = '') {
+    if (typeof value === 'string') return value;
+    return value?.[language] || defaultValue;
+}
+
+/**
  * Trims leading and trailing empty lines, and optionally undents code.
  * @param {string[]} sourceList - Array of source code lines
  * @param {boolean} undent - Whether to undent the code
@@ -59,15 +72,13 @@ export function parseCodeBlock(config, element, logger = console.error) {
 
     const language = element.dataset['ceLanguage'] || config.defaultLanguage;
     const compiler =
-        element.dataset['ceCompiler'] ||
-        (typeof config.defaultCompiler === 'string'
-            ? config.defaultCompiler
-            : config.defaultCompiler?.[language] || 'g142');
+        element.dataset['ceCompiler'] || getLanguageSpecificValue(config.defaultCompiler, language, 'g142');
     const options =
-        element.dataset['ceOptions'] ||
-        (typeof config.defaultCompilerOptions === 'string'
-            ? config.defaultCompilerOptions
-            : config.defaultCompilerOptions?.[language] || '-O1');
+        element.dataset['ceOptions'] || getLanguageSpecificValue(config.defaultCompilerOptions, language, '-O1');
+
+    // Get the regex pattern to remove content from compiler explorer code
+    const removeRegex =
+        element.dataset['ceRemoveRegex'] || getLanguageSpecificValue(config.defaultRemoveRegex, language);
 
     return {
         language,
@@ -75,6 +86,7 @@ export function parseCodeBlock(config, element, logger = console.error) {
         options,
         source: trim(source, false),
         displaySource: trim(displaySource, config.undent),
+        removeRegex,
     };
 }
 
@@ -85,16 +97,37 @@ export function parseCodeBlock(config, element, logger = console.error) {
  * @param {string|Object<string, string>} options - The compiler options as string or language map
  * @param {string} language - The programming language
  * @param {string} compiler - The compiler ID
+ * @param {string} [removeRegex] - Optional regex pattern to remove content from code sent to Compiler Explorer
+ * @param {Function} [logger=console.error] - Function to log errors
  * @returns {string} - URL-encoded JSON configuration for Compiler Explorer
  */
-export function createCompilerExplorerLink(config, source, options, language, compiler) {
+export function createCompilerExplorerLink(
+    config,
+    source,
+    options,
+    language,
+    compiler,
+    removeRegex,
+    logger = console.error,
+) {
+    // Apply removeRegex to source if provided
+    let ceSource = source;
+    if (removeRegex) {
+        try {
+            const regex = new RegExp(removeRegex, 'g');
+            ceSource = source.replace(regex, '');
+        } catch (e) {
+            logger(`Invalid regex pattern: ${removeRegex}`, e);
+        }
+    }
+
     const content = [
         {
             type: 'component',
             componentName: 'codeEditor',
             componentState: {
                 id: 1,
-                source: source,
+                source: ceSource,
                 options: {compileOnChange: true, colouriseAsm: true},
                 fontScale: config.editorFontScale,
                 lang: language,
@@ -113,10 +146,8 @@ export function createCompilerExplorerLink(config, source, options, language, co
                     trim: config.trimAsmWhitespace,
                 },
                 options: [
-                    typeof options === 'string' ? options : options?.[language] || '',
-                    typeof config.additionalCompilerOptions === 'string'
-                        ? config.additionalCompilerOptions
-                        : config.additionalCompilerOptions?.[language] || '',
+                    getLanguageSpecificValue(options, language),
+                    getLanguageSpecificValue(config.additionalCompilerOptions, language),
                 ]
                     .filter(Boolean)
                     .join(' '),
@@ -149,6 +180,7 @@ export function initializeConfig(deck) {
         defaultCompiler: 'g142',
         defaultCompilerOptions: '-O1',
         additionalCompilerOptions: '-Wall -Wextra',
+        defaultRemoveRegex: null,
         intelSyntax: true,
         trimAsmWhitespace: true,
         undent: true,
@@ -255,6 +287,7 @@ export function attachEventListeners(config, element, ceFragment, urlLauncher = 
  * @property {string} options - The compiler options
  * @property {string} source - The complete source code for Compiler Explorer
  * @property {string} displaySource - The source code for display in the presentation
+ * @property {string} [removeRegex] - Optional regex pattern to remove content from code sent to Compiler Explorer
  */
 
 /**
@@ -266,6 +299,7 @@ export function attachEventListeners(config, element, ceFragment, urlLauncher = 
  * @property {string|Object<string, string>} [defaultCompiler] - The ID of the default compiler to use. Can be a string (applies to all languages) or a map of language names to compiler IDs. Defaults to "g142".
  * @property {string|Object<string, string>} [defaultCompilerOptions] - The default compiler options to use. Can be a string (applies to all languages) or a map of language names to options. Defaults to "-O1".
  * @property {string|Object<string, string>} [additionalCompilerOptions] - Additional compiler options to be appended to the default options. Can be a string (applies to all languages) or a map of language names to options. Defaults to "-Wall -Wextra".
+ * @property {string|Object<string, string>} [defaultRemoveRegex] - Regular expression pattern to remove content from code sent to Compiler Explorer. Can be a string (applies to all languages) or a map of language names to regex patterns. Defaults to null (no content removed).
  * @property {number} [editorFontScale] - The font scale for the editor. Defaults to 2.5.
  * @property {number} [compilerFontScale] - The font scale for the compiler. Defaults to 3.0.
  * @property {number} [maxLineLength] - The maximum line length for a code block. Defaults to 50. Lines exceeding this will log warnings to the console.
@@ -291,12 +325,20 @@ export default (dependencies = {}) => ({
 
         for (let i = 0, len = ce_nodes.length; i < len; i++) {
             const element = ce_nodes[i];
-            const {language, compiler, options, source, displaySource} = parseCodeBlock(
+            const {language, compiler, options, source, displaySource, removeRegex} = parseCodeBlock(
                 config,
                 element,
                 dependencies.logger,
             );
-            const ceFragment = createCompilerExplorerLink(config, source, options, language, compiler);
+            const ceFragment = createCompilerExplorerLink(
+                config,
+                source,
+                options,
+                language,
+                compiler,
+                removeRegex,
+                dependencies.logger,
+            );
             attachEventListeners(config, element, ceFragment, dependencies.urlLauncher);
             // To allow the tags to be placed on the `<pre>` outside (for Markdown support), we check for a code block here.
             const maybeInnerCodeBlock = element.querySelectorAll('code');

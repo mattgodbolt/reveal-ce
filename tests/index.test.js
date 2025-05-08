@@ -154,4 +154,111 @@ int main() {
             expect(url).toContain('https://godbolt.org');
         });
     });
+
+    describe('regex removal feature', () => {
+        it('should apply regex removal to code sent to Compiler Explorer', () => {
+            // Setup the test DOM with assembly code and comments
+            document.body.innerHTML = ''; // Clear existing content
+            setupDOM({
+                codeContent: `ldp x8, x9, [x0]    ; x8=begin, x9=end
+mvn x10, x8         ; x10 = ~begin
+add x9, x10, x9     ; x9 = end + ~begin
+                    ;    = end - begin - 1
+                    ;    = bbf.size() - 1
+and x9, x9, x1      ; x9 = val & (bbf.size() - 1)
+ldrb w8, [x8, x9]   ; w8 = bloom_[x9]
+cmp w8, #0
+cset w0, ne         ; return w8 ? true : false`,
+                attributes: {
+                    ce: 'true',
+                    'ce-language': 'asm',
+                    'ce-compiler': 'clang',
+                    'ce-remove-regex': ';.*',
+                },
+            });
+
+            // Create URL launcher mock
+            const urlLauncher = createURLLauncher();
+
+            // Setup reveal.js deck mock
+            const mockDeck = createMockDeck({ce: null}); // Use default config
+
+            // Initialize the plugin with injected URL launcher
+            const pluginDef = plugin({
+                urlLauncher: urlLauncher.navigate,
+            });
+            pluginDef.init(mockDeck);
+
+            // Find the pre element and simulate a ctrl+click
+            const preElement = document.querySelector('pre');
+            preElement.onclick({ctrlKey: true});
+
+            // Check that the URL was created
+            expect(urlLauncher.getMockImplementation()).toHaveBeenCalled();
+            const url = urlLauncher.getMockImplementation().mock.calls[0][0];
+
+            // Decode the URL fragment to check the source
+            const fragment = url.split('#')[1];
+            const decodedObj = JSON.parse(decodeURIComponent(fragment));
+            const editorSource = decodedObj.content[0].content[0].componentState.source;
+
+            // Should not contain comment text but should preserve instructions
+            expect(editorSource).toContain('ldp x8, x9, [x0]');
+            expect(editorSource).toContain('mvn x10, x8');
+            expect(editorSource).not.toContain('x8=begin');
+            expect(editorSource).not.toContain('x10 = ~begin');
+
+            // The display source in the presentation should still have comments
+            const codeElement = document.querySelector('code');
+            expect(codeElement.textContent).toContain('x8=begin');
+            expect(codeElement.textContent).toContain('x10 = ~begin');
+        });
+
+        it('should apply default remove regex from config', () => {
+            // Setup the test DOM with assembly code and comments
+            document.body.innerHTML = ''; // Clear existing content
+            setupDOM({
+                codeContent: `ldp x8, x9, [x0]    ; x8=begin, x9=end
+mvn x10, x8         ; x10 = ~begin`,
+                attributes: {
+                    ce: 'true',
+                    'ce-language': 'asm',
+                    'ce-compiler': 'clang',
+                },
+            });
+
+            // Create URL launcher mock
+            const urlLauncher = createURLLauncher();
+
+            // Setup reveal.js deck with default remove regex
+            const mockDeck = createMockDeck({
+                ce: {
+                    defaultRemoveRegex: ';.*',
+                },
+            });
+
+            // Initialize the plugin with injected URL launcher
+            const pluginDef = plugin({
+                urlLauncher: urlLauncher.navigate,
+            });
+            pluginDef.init(mockDeck);
+
+            // Find the pre element and simulate a ctrl+click
+            const preElement = document.querySelector('pre');
+            preElement.onclick({ctrlKey: true});
+
+            // Check that the URL was created
+            expect(urlLauncher.getMockImplementation()).toHaveBeenCalled();
+            const url = urlLauncher.getMockImplementation().mock.calls[0][0];
+
+            // Decode the URL fragment to check the source
+            const fragment = url.split('#')[1];
+            const decodedObj = JSON.parse(decodeURIComponent(fragment));
+            const editorSource = decodedObj.content[0].content[0].componentState.source;
+
+            // Should not contain comment text
+            expect(editorSource).not.toContain('x8=begin');
+            expect(editorSource).not.toContain('x10 = ~begin');
+        });
+    });
 });
