@@ -9,9 +9,7 @@
       "@semantic-release/git",
       {
         "assets": ["package.json", "CHANGELOG.md"],
-        "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}",
-        "gitAdd": ["--force", "package.json", "CHANGELOG.md"],
-        "gitCmd": "git add -f package.json CHANGELOG.md && git commit -m \"${message}\" --no-verify"
+        "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
       }
     ],
     "@semantic-release/github"
