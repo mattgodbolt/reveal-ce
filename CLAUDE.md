@@ -21,6 +21,33 @@ snippets. It allows users to:
 
 - **Format code**: `npx prettier --write .`
 - **Check code formatting**: `npx prettier --check .`
+- **Create commit**: `npm run commit` (uses commitizen for conventional commits)
+- **Run tests**: `npm test`
+- **Run tests with coverage**: `npm run test:coverage`
+
+## Commit Guidelines
+
+This project uses [Conventional Commits](https://www.conventionalcommits.org/) for standardized commit messages. The format is:
+
+```
+<type>(<optional scope>): <description>
+
+<optional body>
+
+<optional footer>
+```
+
+Common types:
+- `feat:` - A new feature
+- `fix:` - A bug fix
+- `docs:` - Documentation changes
+- `style:` - Code style changes (formatting, etc.)
+- `refactor:` - Code changes that neither fix bugs nor add features
+- `test:` - Adding or modifying tests
+- `chore:` - Changes to the build process or auxiliary tools
+- `ci:` - Changes to CI configuration
+
+Using `npm run commit` will guide you through creating properly formatted commits. The commit messages are used by semantic-release to determine version numbers automatically.
 
 ## Architecture Notes
 
