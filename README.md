@@ -16,16 +16,16 @@ Include the plugin in your reveal.js presentation, submoduled or copied into you
 ```html
 <script type="module">
   import Reveal from './reveal.js/dist/reveal.esm.js';
-  import Highlight from "./reveal.js/plugin/highlight/highlight.esm.js";
-  import CompilerExplorer from "./reveal-ce/index.js";
+  import Highlight from './reveal.js/plugin/highlight/highlight.esm.js';
+  import CompilerExplorer from './reveal-ce/index.js';
 
   Reveal.initialize({
-      ce: {
-          // put any CE options here, see below for details.
-      },
+    ce: {
+      // put any CE options here, see below for details.
+    },
 
-      // CompilerExplorer must be before Highlight in the plugins list
-      plugins: [CompilerExplorer, Highlight],
+    // CompilerExplorer must be before Highlight in the plugins list
+    plugins: [CompilerExplorer, Highlight],
   });
 </script>
 ```
@@ -78,8 +78,8 @@ Other supported options are:
 - `baseUrl` - the base URL of the Compiler Explorer instance to link to. Defaults to
   "https://slides.compiler-explorer.com". (By using a subdomain, any Compiler Explorer global settings are scoped to
   that subdomain; for example things like browser zooms, etc).
-- `maxLineLength` - code lines longer than this will log warnings in the browser console. Defaults to 50. Useful to identify
-  code blocks that might spill off the side of your presentation.
+- `maxLineLength` - code lines longer than this will log warnings in the browser console. Defaults to 50. Useful to
+  identify code blocks that might spill off the side of your presentation.
 - `editorFontScale` and `compilerFontScale` - the font scale to use for the editor and compiler output. Defaults to 2.5
   and 3.0 respectively.
 - `intelSyntax` - whether to use Intel syntax for the compiler output. Defaults to true.
@@ -128,7 +128,7 @@ int test() {
 
 ### Compatibility with Markdown
 
-It's convenient to use Markdown code blocks, but 
+It's convenient to use Markdown code blocks, but
 [reveal.js doesn't currently let us put attributes](https://github.com/hakimel/reveal.js/issues/3642) on Markdown code
 blocks. Instead we can put the following line _after_ the triple-backtick block:
 
@@ -144,8 +144,9 @@ int main() {
     return 0;
 }
 ```
+
 <!-- .element: data-ce data-ce-compiler="g142" data-ce-options="-O3" -->
 ````
 
-Although this actually puts the tags on the `<pre>` block outside of the 
-`<code>` block that's generated, reveal-ce will do the right thing and process the code appropriately.
+Although this actually puts the tags on the `<pre>` block outside of the `<code>` block that's generated, reveal-ce will
+do the right thing and process the code appropriately.
