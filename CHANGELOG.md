@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/mattgodbolt/reveal-ce/compare/v1.1.1...v1.2.0) (2025-05-08)
+
+### Features
+
+- add data-ce-remove-regex feature to filter code sent to Compiler Explorer
+  ([98b502e](https://github.com/mattgodbolt/reveal-ce/commit/98b502eb4da7f03837a4df1b201029d8339644d7))
+
 ## [1.1.1](https://github.com/mattgodbolt/reveal-ce/compare/v1.1.0...v1.1.1) (2025-05-08)
 
 ### Bug Fixes
