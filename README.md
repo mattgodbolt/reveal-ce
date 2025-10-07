@@ -7,7 +7,7 @@
 This is a small plugin for [reveal.js](https://revealjs.com/) that turns C++ `<code>` blocks into presentation-ready
 Compiler-Explorer-linked snippets. It supports:
 
-- Control-click on the code to open [Compiler Explorer](https://compiler-explorer.com)
+- Control-click (Command-click on MacOS) on the code to open [Compiler Explorer](https://compiler-explorer.com)
 - Hiding of regions of the code in the presentation view that appear in the link
 - Setup regions that are collapsed in Compiler Explorer
 - Configuration of the CE instance it links to
