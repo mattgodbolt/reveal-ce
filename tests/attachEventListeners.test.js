@@ -47,6 +47,31 @@ describe('attachEventListeners function', () => {
         expect(urlLauncher.getMockImplementation()).toHaveBeenCalledWith('https://godbolt.org#mockFragment');
     });
 
+    it('should navigate to Compiler Explorer URL on Command+Click for MacOS', () => {
+        // Setup mocks
+        const mockConfig = {
+            baseUrl: 'https://godbolt.org',
+        };
+
+        const mockElement = {
+            parentElement: {},
+        };
+
+        const ceFragment = 'mockFragment';
+
+        // Create URL launcher mock
+        const urlLauncher = createURLLauncher();
+
+        // Call the function with our mock URL launcher
+        attachEventListeners(mockConfig, mockElement, ceFragment, urlLauncher.navigate);
+
+        // Trigger Ctrl+Click
+        mockElement.parentElement.onclick({metaKey: true});
+
+        // Verify navigation occurred with correct URL
+        expect(urlLauncher.getMockImplementation()).toHaveBeenCalledWith('https://godbolt.org#mockFragment');
+    });
+
     it('should not navigate on regular click', () => {
         // Setup mocks
         const mockConfig = {
