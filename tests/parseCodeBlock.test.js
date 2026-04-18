@@ -143,6 +143,41 @@ describe('parseCodeBlock function', () => {
         expect(mockLogger).toHaveBeenCalled();
     });
 
+    it('should not warn about long lines that are hidden', () => {
+        mockElement = {
+            textContent: [
+                'int main() {',
+                '/// hide',
+                'int very_long_hidden_line_that_should_not_trigger_a_warning_at_all = 42;',
+                '/// unhide',
+                '}',
+            ].join('\n'),
+            dataset: {},
+        };
+
+        const mockLogger = vi.fn();
+        parseCodeBlock(mockConfig, mockElement, mockLogger);
+
+        expect(mockLogger).not.toHaveBeenCalled();
+    });
+
+    it('should not warn about long lines in setup regions', () => {
+        mockElement = {
+            textContent: [
+                '// setup',
+                '    int very_long_setup_line_that_should_not_trigger_a_warning_at_all = 42;',
+                'int main() {',
+                '}',
+            ].join('\n'),
+            dataset: {},
+        };
+
+        const mockLogger = vi.fn();
+        parseCodeBlock(mockConfig, mockElement, mockLogger);
+
+        expect(mockLogger).not.toHaveBeenCalled();
+    });
+
     it('should support language-specific compiler mapping', () => {
         // Setup config with language-specific compiler mapping
         mockConfig.defaultCompiler = {

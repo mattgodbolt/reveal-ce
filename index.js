@@ -64,9 +64,11 @@ export function parseCodeBlock(config, element, logger = console.error) {
         }
 
         source.push(line);
-        if (!skipDisplay && !hide) displaySource.push(line);
-        if (line.length > config.maxLineLength) {
-            logger(`Line too long: "${line}"`);
+        if (!skipDisplay && !hide) {
+            displaySource.push(line);
+            if (line.length > config.maxLineLength) {
+                logger(`Line too long: "${line}"`);
+            }
         }
     }
 
