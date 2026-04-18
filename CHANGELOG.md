@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/mattgodbolt/reveal-ce/compare/v1.2.0...v1.2.1) (2026-04-18)
+
+### Bug Fixes
+
+- only warn about long lines when visible
+  ([87a453b](https://github.com/mattgodbolt/reveal-ce/commit/87a453bad4d11e80d553447d22958ca9d49b0915))
+
 # [1.2.0](https://github.com/mattgodbolt/reveal-ce/compare/v1.1.1...v1.2.0) (2025-05-08)
 
 ### Features
