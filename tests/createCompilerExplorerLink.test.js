@@ -140,6 +140,44 @@ describe('createCompilerExplorerLink function', () => {
         expect(source).toContain('; x10 = ~begin');
     });
 
+    it('should produce an executor pane when executor is true', () => {
+        const source = 'int main() { return 0; }';
+        const options = '-O2';
+        const language = 'c++';
+        const compiler = 'g142';
+
+        const fragment = createCompilerExplorerLink(mockConfig, source, options, language, compiler, null, true);
+
+        const decodedObj = JSON.parse(decodeURIComponent(fragment));
+        const components = decodedObj.content[0].content;
+        expect(components).toHaveLength(2);
+        expect(components[0].componentName).toBe('codeEditor');
+
+        const executorComponent = components[1];
+        expect(executorComponent.componentName).toBe('executor');
+        expect(executorComponent.componentState.compiler).toBe(compiler);
+        expect(executorComponent.componentState.source).toBe(1);
+        expect(executorComponent.componentState.lang).toBe(language);
+        expect(executorComponent.componentState.options).toContain('-O2');
+        expect(executorComponent.componentState.options).toContain('-Wall');
+        // Asm-specific filters should not be present on an executor
+        expect(executorComponent.componentState.filters).toBeUndefined();
+    });
+
+    it('should default to the compiler pane when executor is false/unset', () => {
+        const fragment = createCompilerExplorerLink(
+            mockConfig,
+            'int main() { return 0; }',
+            '-O2',
+            'c++',
+            'g142',
+            null,
+            false,
+        );
+        const decodedObj = JSON.parse(decodeURIComponent(fragment));
+        expect(decodedObj.content[0].content[1].componentName).toBe('compiler');
+    });
+
     it('should handle invalid regex patterns', () => {
         const source = 'int main() { return 0; }';
         const options = '-O2';
@@ -155,6 +193,7 @@ describe('createCompilerExplorerLink function', () => {
             language,
             compiler,
             removeRegex,
+            false,
             mockLogger,
         );
 

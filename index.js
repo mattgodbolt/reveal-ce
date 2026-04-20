@@ -82,6 +82,8 @@ export function parseCodeBlock(config, element, logger = console.error) {
     const removeRegex =
         element.dataset['ceRemoveRegex'] || getLanguageSpecificValue(config.defaultRemoveRegex, language);
 
+    const executor = parseExecutorFlag(element.dataset['ceExecutor'], config.defaultExecutor, language);
+
     return {
         language,
         compiler,
@@ -89,7 +91,24 @@ export function parseCodeBlock(config, element, logger = console.error) {
         source: trim(source, false),
         displaySource: trim(displaySource, config.undent),
         removeRegex,
+        executor,
     };
+}
+
+/**
+ * Resolves the executor flag from a per-block dataset attribute and a global default.
+ * Dataset wins when present; an empty string (bare `data-ce-executor`) counts as true.
+ * @param {string|undefined} datasetValue - The raw `data-ce-executor` value
+ * @param {boolean|Object<string, boolean>|undefined} defaultValue - Global default
+ * @param {string} language - The programming language
+ * @returns {boolean}
+ */
+export function parseExecutorFlag(datasetValue, defaultValue, language) {
+    if (datasetValue !== undefined) {
+        return datasetValue === '' || datasetValue.toLowerCase() === 'true';
+    }
+    if (typeof defaultValue === 'boolean') return defaultValue;
+    return Boolean(defaultValue?.[language]);
 }
 
 /**
@@ -110,8 +129,15 @@ export function createCompilerExplorerLink(
     language,
     compiler,
     removeRegex,
+    executor = false,
     logger = console.error,
 ) {
+    // Accept `logger` in the historical 7th position for backward compatibility.
+    if (typeof executor === 'function') {
+        logger = executor;
+        executor = false;
+    }
+
     // Apply removeRegex to source if provided
     let ceSource = source;
     if (removeRegex) {
@@ -122,6 +148,49 @@ export function createCompilerExplorerLink(
             logger(`Invalid regex pattern: ${removeRegex}`, e);
         }
     }
+
+    const resolvedOptions = [
+        getLanguageSpecificValue(options, language),
+        getLanguageSpecificValue(config.additionalCompilerOptions, language),
+    ]
+        .filter(Boolean)
+        .join(' ');
+
+    const rightPane = executor
+        ? {
+              type: 'component',
+              componentName: 'executor',
+              componentState: {
+                  source: 1,
+                  compiler: compiler,
+                  options: resolvedOptions,
+                  lang: language,
+                  fontScale: config.compilerFontScale,
+                  compilationPanelShown: false,
+                  compilerOutShown: false,
+                  argsPanelShown: false,
+                  stdinPanelShown: false,
+                  execArgs: '',
+                  execStdin: '',
+              },
+          }
+        : {
+              type: 'component',
+              componentName: 'compiler',
+              componentState: {
+                  source: 1,
+                  filters: {
+                      commentOnly: true,
+                      directives: true,
+                      intel: config.intelSyntax,
+                      labels: true,
+                      trim: config.trimAsmWhitespace,
+                  },
+                  options: resolvedOptions,
+                  compiler: compiler,
+                  fontScale: config.compilerFontScale,
+              },
+          };
 
     const content = [
         {
@@ -135,28 +204,7 @@ export function createCompilerExplorerLink(
                 lang: language,
             },
         },
-        {
-            type: 'component',
-            componentName: 'compiler',
-            componentState: {
-                source: 1,
-                filters: {
-                    commentOnly: true,
-                    directives: true,
-                    intel: config.intelSyntax,
-                    labels: true,
-                    trim: config.trimAsmWhitespace,
-                },
-                options: [
-                    getLanguageSpecificValue(options, language),
-                    getLanguageSpecificValue(config.additionalCompilerOptions, language),
-                ]
-                    .filter(Boolean)
-                    .join(' '),
-                compiler: compiler,
-                fontScale: config.compilerFontScale,
-            },
-        },
+        rightPane,
     ];
 
     const obj = {
@@ -183,6 +231,7 @@ export function initializeConfig(deck) {
         defaultCompilerOptions: '-O1',
         additionalCompilerOptions: '-Wall -Wextra',
         defaultRemoveRegex: null,
+        defaultExecutor: false,
         intelSyntax: true,
         trimAsmWhitespace: true,
         undent: true,
@@ -290,6 +339,7 @@ export function attachEventListeners(config, element, ceFragment, urlLauncher = 
  * @property {string} source - The complete source code for Compiler Explorer
  * @property {string} displaySource - The source code for display in the presentation
  * @property {string} [removeRegex] - Optional regex pattern to remove content from code sent to Compiler Explorer
+ * @property {boolean} [executor] - Whether to render this block as an executor (runs code) rather than a compiler (shows asm)
  */
 
 /**
@@ -301,6 +351,7 @@ export function attachEventListeners(config, element, ceFragment, urlLauncher = 
  * @property {string|Object<string, string>} [defaultCompiler] - The ID of the default compiler to use. Can be a string (applies to all languages) or a map of language names to compiler IDs. Defaults to "g142".
  * @property {string|Object<string, string>} [defaultCompilerOptions] - The default compiler options to use. Can be a string (applies to all languages) or a map of language names to options. Defaults to "-O1".
  * @property {string|Object<string, string>} [additionalCompilerOptions] - Additional compiler options to be appended to the default options. Can be a string (applies to all languages) or a map of language names to options. Defaults to "-Wall -Wextra".
+ * @property {boolean|Object<string, boolean>} [defaultExecutor] - Whether code blocks should default to an executor pane instead of the compiler/asm pane. Can be a boolean (applies to all languages) or a map of language names to booleans. Defaults to false.
  * @property {string|Object<string, string>} [defaultRemoveRegex] - Regular expression pattern to remove content from code sent to Compiler Explorer. Can be a string (applies to all languages) or a map of language names to regex patterns. Defaults to null (no content removed).
  * @property {number} [editorFontScale] - The font scale for the editor. Defaults to 2.5.
  * @property {number} [compilerFontScale] - The font scale for the compiler. Defaults to 3.0.
@@ -327,7 +378,7 @@ export default (dependencies = {}) => ({
 
         for (let i = 0, len = ce_nodes.length; i < len; i++) {
             const element = ce_nodes[i];
-            const {language, compiler, options, source, displaySource, removeRegex} = parseCodeBlock(
+            const {language, compiler, options, source, displaySource, removeRegex, executor} = parseCodeBlock(
                 config,
                 element,
                 dependencies.logger,
@@ -339,6 +390,7 @@ export default (dependencies = {}) => ({
                 language,
                 compiler,
                 removeRegex,
+                executor,
                 dependencies.logger,
             );
             attachEventListeners(config, element, ceFragment, dependencies.urlLauncher);

@@ -56,6 +56,9 @@ Each code block can have the following attributes to customize its behavior:
 - `data-ce-options` - Specifies the compiler options for this code block
 - `data-ce-language` - Overrides the language for this code block
 - `data-ce-remove-regex` - Specifies a regex pattern to remove content from code sent to Compiler Explorer
+- `data-ce-executor` - If `true` (or a bare attribute), opens this block in Compiler Explorer's executor view (runs the
+  program and shows its output) instead of the default compiler/assembly view. Set to `false` to override a truthy
+  `defaultExecutor` in the global config.
 
 Example:
 
@@ -63,6 +66,17 @@ Example:
 <pre><code data-ce data-ce-compiler="g142" data-ce-options="-O3 -march=haswell" data-ce-language="c++">
     int multiply(int a, int b) {
         return a * b;
+    }
+</code></pre>
+```
+
+Example using the executor pane (runs the program and shows stdout instead of the compiled assembly):
+
+```html
+<pre><code data-ce data-ce-executor>
+    #include <cstdio>
+    int main() {
+        std::puts("Hello, world!");
     }
 </code></pre>
 ```
@@ -118,20 +132,21 @@ Reveal.initialize({
 
 #### All Configuration Options
 
-| Option                      | Type             | Default                                  | Description                                                                                                                                                                                                                          |
-| --------------------------- | ---------------- | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `baseUrl`                   | string           | `'https://slides.compiler-explorer.com'` | The base URL of the Compiler Explorer instance to link to. By using a subdomain, Compiler Explorer global settings are scoped to that subdomain (e.g., browser zooms).                                                               |
-| `defaultLanguage`           | string           | `'c++'`                                  | The default programming language to use for all code blocks.                                                                                                                                                                         |
-| `defaultCompiler`           | string \| object | `'g142'`                                 | The ID of the default compiler to use. Can be a string (applies to all languages) or an object mapping language names to compiler IDs. To find compiler IDs, run `curl -sL https://compiler-explorer.org/api/compilers/c++ \| less`. |
-| `defaultCompilerOptions`    | string \| object | `'-O1'`                                  | The default compiler options to use. Can be a string (applies to all languages) or an object mapping language names to options.                                                                                                      |
-| `additionalCompilerOptions` | string \| object | `'-Wall -Wextra'`                        | Additional compiler options to always append to the defaults. Can be a string (applies to all languages) or an object mapping language names to options.                                                                             |
-| `defaultRemoveRegex`        | string \| object | `null`                                   | Regular expression pattern to remove content from code sent to Compiler Explorer. Can be a string (applies to all languages) or an object mapping language names to regex patterns. Used to hide content like comments in CE links.  |
-| `editorFontScale`           | number           | `2.5`                                    | The font scale for the code editor in Compiler Explorer.                                                                                                                                                                             |
-| `compilerFontScale`         | number           | `3.0`                                    | The font scale for the compiler output in Compiler Explorer.                                                                                                                                                                         |
-| `maxLineLength`             | number           | `50`                                     | Maximum line length for code blocks. Lines exceeding this will log warnings to the browser console. Useful to identify code blocks that might spill off the side of your presentation.                                               |
-| `intelSyntax`               | boolean          | `true`                                   | Whether to use Intel syntax for the assembly output (versus AT&T syntax).                                                                                                                                                            |
-| `trimAsmWhitespace`         | boolean          | `true`                                   | Whether to trim horizontal whitespace from the assembly output in Compiler Explorer.                                                                                                                                                 |
-| `undent`                    | boolean          | `true`                                   | Whether to automatically remove common leading whitespace from the displayed code blocks in the presentation (the Compiler Explorer link will still have the original indentation).                                                  |
+| Option                      | Type              | Default                                  | Description                                                                                                                                                                                                                                       |
+| --------------------------- | ----------------- | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `baseUrl`                   | string            | `'https://slides.compiler-explorer.com'` | The base URL of the Compiler Explorer instance to link to. By using a subdomain, Compiler Explorer global settings are scoped to that subdomain (e.g., browser zooms).                                                                            |
+| `defaultLanguage`           | string            | `'c++'`                                  | The default programming language to use for all code blocks.                                                                                                                                                                                      |
+| `defaultCompiler`           | string \| object  | `'g142'`                                 | The ID of the default compiler to use. Can be a string (applies to all languages) or an object mapping language names to compiler IDs. To find compiler IDs, run `curl -sL https://compiler-explorer.org/api/compilers/c++ \| less`.              |
+| `defaultCompilerOptions`    | string \| object  | `'-O1'`                                  | The default compiler options to use. Can be a string (applies to all languages) or an object mapping language names to options.                                                                                                                   |
+| `additionalCompilerOptions` | string \| object  | `'-Wall -Wextra'`                        | Additional compiler options to always append to the defaults. Can be a string (applies to all languages) or an object mapping language names to options.                                                                                          |
+| `defaultRemoveRegex`        | string \| object  | `null`                                   | Regular expression pattern to remove content from code sent to Compiler Explorer. Can be a string (applies to all languages) or an object mapping language names to regex patterns. Used to hide content like comments in CE links.               |
+| `defaultExecutor`           | boolean \| object | `false`                                  | Whether code blocks default to opening in Compiler Explorer's executor view (runs the program) rather than the compiler/asm view. Can be a boolean or an object mapping language names to booleans. Overridable per block via `data-ce-executor`. |
+| `editorFontScale`           | number            | `2.5`                                    | The font scale for the code editor in Compiler Explorer.                                                                                                                                                                                          |
+| `compilerFontScale`         | number            | `3.0`                                    | The font scale for the compiler output in Compiler Explorer.                                                                                                                                                                                      |
+| `maxLineLength`             | number            | `50`                                     | Maximum line length for code blocks. Lines exceeding this will log warnings to the browser console. Useful to identify code blocks that might spill off the side of your presentation.                                                            |
+| `intelSyntax`               | boolean           | `true`                                   | Whether to use Intel syntax for the assembly output (versus AT&T syntax).                                                                                                                                                                         |
+| `trimAsmWhitespace`         | boolean           | `true`                                   | Whether to trim horizontal whitespace from the assembly output in Compiler Explorer.                                                                                                                                                              |
+| `undent`                    | boolean           | `true`                                   | Whether to automatically remove common leading whitespace from the displayed code blocks in the presentation (the Compiler Explorer link will still have the original indentation).                                                               |
 
 ### Hiding and setup
 

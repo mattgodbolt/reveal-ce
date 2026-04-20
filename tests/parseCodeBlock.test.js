@@ -252,4 +252,36 @@ describe('parseCodeBlock function', () => {
         expect(result.language).toBe('asm');
         expect(result.removeRegex).toBe(';.*');
     });
+
+    it('should default executor to false when no attribute or config is set', () => {
+        mockElement = {textContent: 'int main() { return 0; }', dataset: {}};
+        expect(parseCodeBlock(mockConfig, mockElement).executor).toBe(false);
+    });
+
+    it('should honour data-ce-executor on the element', () => {
+        mockElement = {textContent: 'int main() { return 0; }', dataset: {ceExecutor: 'true'}};
+        expect(parseCodeBlock(mockConfig, mockElement).executor).toBe(true);
+
+        // Bare attribute (empty string) counts as true
+        mockElement = {textContent: 'int main() { return 0; }', dataset: {ceExecutor: ''}};
+        expect(parseCodeBlock(mockConfig, mockElement).executor).toBe(true);
+
+        // Dataset wins over a truthy global default
+        mockConfig.defaultExecutor = true;
+        mockElement = {textContent: 'int main() { return 0; }', dataset: {ceExecutor: 'false'}};
+        expect(parseCodeBlock(mockConfig, mockElement).executor).toBe(false);
+    });
+
+    it('should fall back to defaultExecutor (bool or language map) when attribute is absent', () => {
+        mockConfig.defaultExecutor = true;
+        mockElement = {textContent: 'int main() { return 0; }', dataset: {}};
+        expect(parseCodeBlock(mockConfig, mockElement).executor).toBe(true);
+
+        mockConfig.defaultExecutor = {python: true, 'c++': false};
+        mockElement = {textContent: 'print("hi")', dataset: {ceLanguage: 'python'}};
+        expect(parseCodeBlock(mockConfig, mockElement).executor).toBe(true);
+
+        mockElement = {textContent: 'int main() { return 0; }', dataset: {ceLanguage: 'c++'}};
+        expect(parseCodeBlock(mockConfig, mockElement).executor).toBe(false);
+    });
 });
