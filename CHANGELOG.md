@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/mattgodbolt/reveal-ce/compare/v1.2.1...v1.3.0) (2026-04-20)
+
+### Features
+
+- add optional executor pane mode for Compiler Explorer links
+  ([382a4ec](https://github.com/mattgodbolt/reveal-ce/commit/382a4eceda7599e554b8597804e837ff05e87044))
+
 ## [1.2.1](https://github.com/mattgodbolt/reveal-ce/compare/v1.2.0...v1.2.1) (2026-04-18)
 
 ### Bug Fixes
